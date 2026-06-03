@@ -2118,6 +2118,11 @@ function salvarOrcamento() {
   const novaVersao = incrementarVersao();
   mostrarVersao();
   alert(`✅ Orçamento #${numero} salvo com sucesso! (v${novaVersao})`);
+  // Sobe automaticamente para a nuvem se configurado
+  const cfg = carregarConfigGist();
+  if(cfg.token && cfg.gistId) {
+    salvarNoGist(cfg).catch(()=>{});
+  }
 }
 
 // ==================== GERAR ESCOPO ====================
@@ -2866,7 +2871,7 @@ async function sincronizarGist() {
   atualizarStatusGist('sync');
   try {
     if(cfg.gistId) {
-      await carregarDoGist(cfg);
+      await carregarDoGist(cfg, false);
     } else {
       await criarGist(cfg);
     }
@@ -2929,7 +2934,7 @@ async function salvarNoGist(cfg) {
   atualizarStatusGist('ok');
 }
 
-async function carregarDoGist(cfg) {
+async function carregarDoGist(cfg, silencioso) {
   const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
     headers: {
       'Authorization': `token ${cfg.token}`,
@@ -2940,57 +2945,69 @@ async function carregarDoGist(cfg) {
     const err = await res.json();
     throw new Error(err.message || `HTTP ${res.status} — verifique o ID do Gist`);
   }
-  const gist     = await res.json();
-  const arquivo  = gist.files[GIST_FILENAME];
+  const gist    = await res.json();
+  const arquivo = gist.files[GIST_FILENAME];
   if(!arquivo) throw new Error(`Arquivo "${GIST_FILENAME}" não encontrado no Gist.`);
 
-  const dadosNuvem = JSON.parse(arquivo.content);
-  const dadosLocais= montarPayloadBackup();
+  const dadosNuvem  = JSON.parse(arquivo.content);
+  const totalLocal  = state.orcamentos.length;
+  const totalNuvem  = dadosNuvem.sp8_orcamentos?.length||0;
 
-  // Compara datas de atualização
   const tsNuvem = new Date(dadosNuvem.sp8_exportado_em||0).getTime()||0;
-  const tsLocal = new Date(dadosLocais.sp8_exportado_em||0).getTime()||0;
+  const tsLocal = new Date(localStorage.getItem('sp8_gist_last_sync')||0).getTime()||0;
 
-  let acao = 'subir'; // padrão: sobe dados locais
-
-  if(tsNuvem > tsLocal) {
-    // Nuvem é mais recente — pergunta se quer baixar
-    const totalOrc = dadosNuvem.sp8_orcamentos?.length||0;
-    const totalMat = dadosNuvem.sp8_materiais?.length||0;
-    const escolha  = confirm(
-      `☁️ A nuvem tem dados mais recentes!\n\n` +
-      `Nuvem: ${totalOrc} orçamento(s) · atualizado em ${dadosNuvem.sp8_exportado_em||'?'}\n` +
-      `Local: ${dadosLocais.sp8_orcamentos?.length||0} orçamento(s)\n\n` +
-      `OK = Baixar dados da nuvem (substitui local)\n` +
-      `Cancelar = Subir dados locais (substitui nuvem)`
-    );
-    acao = escolha ? 'baixar' : 'subir';
-  } else if(tsLocal > tsNuvem) {
-    // Local é mais recente — sobe automaticamente
-    acao = 'subir';
-  } else {
-    // Igual — não faz nada
-    atualizarStatusGist('ok');
-    const ultima = localStorage.getItem('sp8_gist_last_sync');
-    alert(`✅ Dados já estão sincronizados!\nÚltimo sync: ${ultima||'agora'}`);
+  // Se local está vazio — baixa automaticamente sem perguntar
+  if(totalLocal === 0 && totalNuvem > 0) {
+    await aplicarDadosNuvem(dadosNuvem, silencioso);
     return;
   }
 
-  if(acao === 'baixar') {
-    // Aplica dados da nuvem localmente
-    state.materiais  = dadosNuvem.sp8_materiais;
-    state.orcamentos = dadosNuvem.sp8_orcamentos||[];
-    if(dadosNuvem.sp8_versao) localStorage.setItem(APP_VERSAO_KEY, dadosNuvem.sp8_versao);
-    salvarState();
-    mostrarVersao();
-    renderDashboard();
-    localStorage.setItem('sp8_gist_last_sync', new Date().toLocaleString('pt-BR'));
-    atualizarStatusGist('ok');
-    alert(`✅ Dados baixados da nuvem!\n${state.orcamentos.length} orçamento(s) · ${state.materiais.length} material(is)`);
-  } else {
-    // Sobe dados locais para a nuvem
+  // Se nuvem é mais recente que o último sync local
+  if(tsNuvem > tsLocal) {
+    if(silencioso) {
+      // Ao abrir automaticamente — baixa sem perguntar se nuvem for mais nova
+      await aplicarDadosNuvem(dadosNuvem, true);
+    } else {
+      // Acionado manualmente — pergunta
+      const escolha = confirm(
+        `☁️ A nuvem tem dados mais recentes!\n\n` +
+        `Nuvem: ${totalNuvem} orçamento(s) · ${dadosNuvem.sp8_exportado_em?.slice(0,10)||'?'}\n` +
+        `Local: ${totalLocal} orçamento(s)\n\n` +
+        `OK = Baixar dados da nuvem\n` +
+        `Cancelar = Subir dados locais para a nuvem`
+      );
+      if(escolha) {
+        await aplicarDadosNuvem(dadosNuvem, false);
+      } else {
+        await salvarNoGist(cfg);
+        alert(`✅ Dados locais enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
+      }
+    }
+  } else if(tsLocal === 0 || totalLocal > totalNuvem) {
+    // Local nunca sincronizou ou tem mais dados — sobe para nuvem
     await salvarNoGist(cfg);
-    alert(`✅ Dados enviados para a nuvem!\n${state.orcamentos.length} orçamento(s) sincronizado(s)`);
+    if(!silencioso) alert(`✅ Dados enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
+  } else {
+    // Já sincronizado
+    atualizarStatusGist('ok');
+    if(!silencioso) {
+      const ultima = localStorage.getItem('sp8_gist_last_sync');
+      alert(`✅ Dados já sincronizados!\nÚltimo sync: ${ultima||'agora'}`);
+    }
+  }
+}
+
+async function aplicarDadosNuvem(dadosNuvem, silencioso) {
+  state.materiais  = dadosNuvem.sp8_materiais  || state.materiais;
+  state.orcamentos = dadosNuvem.sp8_orcamentos || [];
+  if(dadosNuvem.sp8_versao) localStorage.setItem(APP_VERSAO_KEY, dadosNuvem.sp8_versao);
+  salvarState();
+  mostrarVersao();
+  renderDashboard();
+  localStorage.setItem('sp8_gist_last_sync', dadosNuvem.sp8_exportado_em || new Date().toISOString());
+  atualizarStatusGist('ok');
+  if(!silencioso) {
+    alert(`✅ Dados carregados da nuvem!\n${state.orcamentos.length} orçamento(s) · ${state.materiais.length} material(is)`);
   }
 }
 
@@ -3006,10 +3023,9 @@ function montarPayloadBackup() {
 function verificarSyncGistAoIniciar() {
   const cfg = carregarConfigGist();
   if(cfg.token && cfg.gistId) {
-    const ultima = localStorage.getItem('sp8_gist_last_sync');
-    atualizarStatusGist('ok');
-    // Auto-sincroniza silenciosamente ao abrir
-    carregarDoGist(cfg).catch(() => atualizarStatusGist('erro'));
+    atualizarStatusGist('sync');
+    // Baixa automaticamente ao abrir — silencioso
+    carregarDoGist(cfg, true).catch(() => atualizarStatusGist('erro'));
   }
 }
 

@@ -928,8 +928,65 @@
   </div>
 </div>
 
-<!-- INPUT OCULTO PARA UPLOAD DE FOTO -->
-<input type="file" id="input-foto" accept="image/*" multiple style="display:none;" onchange="processarFotos(this)">
+<!-- MODAL ADICIONAR FOTO GOOGLE DRIVE -->
+<div class="modal-overlay" id="modal-foto-drive">
+  <div class="modal" style="max-width:500px;">
+    <h2>📷 ADICIONAR FOTO</h2>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:var(--fonte-cond);">
+      Cole o link de compartilhamento do Google Drive. A foto deve estar compartilhada como <strong>"Qualquer pessoa com o link"</strong>.
+    </p>
+
+    <div style="display:flex;flex-direction:column;gap:14px;">
+      <div class="campo">
+        <label>Link do Google Drive</label>
+        <input type="text" id="drive-link-input"
+          placeholder="https://drive.google.com/file/d/1ABC.../view"
+          oninput="previewDriveLink(this.value)">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
+          Cole vários links um por vez ou use o botão "＋ Mais" para adicionar outro.
+        </span>
+      </div>
+
+      <div class="campo">
+        <label>Nome / Descrição (opcional)</label>
+        <input type="text" id="drive-foto-nome" placeholder="Ex: Entrada social, Clausura, Corredor...">
+      </div>
+
+      <!-- Preview -->
+      <div id="drive-preview-wrap" style="display:none;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:6px;">Preview:</div>
+        <img id="drive-preview-img" src="" alt="preview"
+          style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);object-fit:contain;background:var(--bg3);">
+        <div id="drive-preview-erro" style="display:none;font-size:12px;color:var(--vermelho);padding:8px;background:#fee2e2;border-radius:6px;border:1px solid #fca5a5;">
+          ⚠️ Não foi possível carregar a imagem. Verifique se o arquivo está compartilhado como "Qualquer pessoa com o link".
+        </div>
+      </div>
+
+      <!-- Instruções -->
+      <details>
+        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">
+          📖 Como compartilhar no Google Drive
+        </summary>
+        <div style="margin-top:10px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.8;border:1px solid var(--border);">
+          <strong>No computador:</strong><br>
+          1. Abra o Google Drive → clique direito na foto<br>
+          2. <strong>Compartilhar → Compartilhar</strong><br>
+          3. Em "Acesso Geral" selecione <strong>"Qualquer pessoa com o link"</strong><br>
+          4. Clique em <strong>Copiar link</strong> → cole aqui<br><br>
+          <strong>No celular:</strong><br>
+          1. Abra o app Google Drive → segure o arquivo<br>
+          2. Toque em <strong>Compartilhar</strong> → <strong>Copiar link</strong><br>
+          3. Cole aqui
+        </div>
+      </details>
+    </div>
+
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-foto-drive')">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmarFotoDrive()">✓ Adicionar Foto</button>
+    </div>
+  </div>
+</div>
 
 <!-- GALERIA LIGHTBOX -->
 <div class="galeria-overlay" id="galeria-overlay" onclick="fecharGaleria(event)">
@@ -1630,7 +1687,7 @@ function renderTabelaFase(fase) {
       <td class="item-total">${fmt(total)}</td>
       <td style="white-space:nowrap;">
         ${podeAddSub?`<button class="btn-add-sub" onclick="adicionarSubitem('${fase.id}',${idx})" title="Adicionar local de instalação">＋ Local</button>`:''}
-        <button class="btn-foto" onclick="abrirUploadFoto('${fase.id}',${idx})" title="Adicionar foto do local">📷${fotos.length>0?` <span class="badge-foto">${fotos.length}</span>`:''}</button>
+        <button class="btn-foto" onclick="abrirFotoDrive('${fase.id}',${idx})" title="Adicionar foto do Google Drive">📷${fotos.length>0?` <span class="badge-foto">${fotos.length}</span>`:''}</button>
         <button class="btn btn-danger btn-xs" style="margin-left:4px;" onclick="removerItem('${fase.id}',${idx})">✕</button>
       </td>
     </tr>
@@ -1648,7 +1705,7 @@ function renderTabelaFase(fase) {
               <button onclick="removerFoto('${fase.id}',${idx},${fi})"
                 style="position:absolute;top:-5px;right:-5px;background:var(--vermelho);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">✕</button>
             </div>`).join('')}
-          <button class="btn-foto-add" onclick="abrirUploadFoto('${fase.id}',${idx})" title="Adicionar mais fotos">＋ foto</button>
+          <button class="btn-foto-add" onclick="abrirFotoDrive('${fase.id}',${idx})" title="Adicionar mais fotos">＋ foto</button>
         </div>
       </td>
     </tr>`:''}
@@ -3017,67 +3074,86 @@ function importarDados(input) {
   reader.readAsText(file);
 }
 
-// ==================== FOTOS POR ITEM ====================
+// ==================== FOTOS POR ITEM — GOOGLE DRIVE ====================
 let _fotoFaseId = null;
-let _fotoIdx = null;
+let _fotoIdx    = null;
 let _galeriaFaseId = null;
-let _galeriaIdx = null;
-let _galeriaAtual = 0;
+let _galeriaIdx    = null;
+let _galeriaAtual  = 0;
 
-function abrirUploadFoto(faseId, idx) {
-  _fotoFaseId = faseId;
-  _fotoIdx = idx;
-  const inp = document.getElementById('input-foto');
-  inp.value = '';
-  inp.click();
+// Converte link de compartilhamento do Drive para URL de exibição direta
+function converterLinkDrive(link) {
+  if(!link) return null;
+  link = link.trim();
+  // Formato: https://drive.google.com/file/d/ID/view
+  const m1 = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
+  if(m1) return `https://drive.google.com/uc?export=view&id=${m1[1]}`;
+  // Formato: https://drive.google.com/open?id=ID
+  const m2 = link.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  if(m2) return `https://drive.google.com/uc?export=view&id=${m2[1]}`;
+  // Já é URL direta
+  if(link.includes('drive.google.com/uc')) return link;
+  return null;
 }
 
-function processarFotos(input) {
-  const files = Array.from(input.files);
-  if(!files.length) return;
+function abrirFotoDrive(faseId, idx) {
+  _fotoFaseId = faseId;
+  _fotoIdx    = idx;
+  document.getElementById('drive-link-input').value = '';
+  document.getElementById('drive-foto-nome').value  = '';
+  document.getElementById('drive-preview-wrap').style.display = 'none';
+  document.getElementById('drive-preview-erro').style.display = 'none';
+  abrirModal('modal-foto-drive');
+  setTimeout(()=>document.getElementById('drive-link-input').focus(), 100);
+}
+
+function previewDriveLink(val) {
+  const url = converterLinkDrive(val);
+  const wrap = document.getElementById('drive-preview-wrap');
+  const img  = document.getElementById('drive-preview-img');
+  const erro = document.getElementById('drive-preview-erro');
+
+  if(!url) { wrap.style.display='none'; return; }
+
+  wrap.style.display = 'block';
+  erro.style.display = 'none';
+  img.style.display  = 'block';
+  img.src = url;
+  img.onerror = () => {
+    img.style.display  = 'none';
+    erro.style.display = 'block';
+  };
+  img.onload = () => {
+    img.style.display  = 'block';
+    erro.style.display = 'none';
+  };
+}
+
+function confirmarFotoDrive() {
+  const linkBruto = document.getElementById('drive-link-input').value.trim();
+  const nome      = document.getElementById('drive-foto-nome').value.trim();
+  if(!linkBruto) { alert('Cole o link do Google Drive.'); return; }
+
+  const urlDireta = converterLinkDrive(linkBruto);
+  if(!urlDireta) {
+    alert('Link inválido.\n\nCertifique-se de copiar o link de compartilhamento do Google Drive.\nExemplo: https://drive.google.com/file/d/1ABC.../view');
+    return;
+  }
+
   const f = state.fasesAtivas.find(f=>f.id===_fotoFaseId);
   if(!f||!f.itens[_fotoIdx]) return;
   if(!f.itens[_fotoIdx].fotos) f.itens[_fotoIdx].fotos = [];
 
-  let processados = 0;
-  files.forEach(file => {
-    // Comprime a imagem antes de salvar
-    const reader = new FileReader();
-    reader.onload = e => {
-      comprimirImagem(e.target.result, file.name, (dataComprimida) => {
-        f.itens[_fotoIdx].fotos.push({
-          nome: file.name,
-          data: dataComprimida,
-          adicionadaEm: new Date().toISOString(),
-        });
-        processados++;
-        if(processados === files.length) {
-          renderFases();
-        }
-      });
-    };
-    reader.readAsDataURL(file);
+  f.itens[_fotoIdx].fotos.push({
+    nome:        nome || `Foto ${f.itens[_fotoIdx].fotos.length + 1}`,
+    data:        urlDireta,    // URL do Drive (não base64)
+    linkOriginal:linkBruto,
+    tipo:        'drive',
+    adicionadaEm: new Date().toISOString(),
   });
-}
 
-function comprimirImagem(dataUrl, nome, callback) {
-  const img = new Image();
-  img.onload = () => {
-    const canvas = document.createElement('canvas');
-    // Reduz para no máximo 1280px mantendo proporção
-    const MAX = 1280;
-    let { width, height } = img;
-    if(width > MAX || height > MAX) {
-      if(width > height) { height = Math.round(height * MAX / width); width = MAX; }
-      else { width = Math.round(width * MAX / height); height = MAX; }
-    }
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    ctx.drawImage(img, 0, 0, width, height);
-    callback(canvas.toDataURL('image/jpeg', 0.75));
-  };
-  img.src = dataUrl;
+  fecharModal('modal-foto-drive');
+  renderFases();
 }
 
 function removerFoto(faseId, idx, fi) {

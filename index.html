@@ -818,7 +818,11 @@
 <div id="view-materiais" class="view">
   <div class="form-header">
     <h1>BASE DE MATERIAIS</h1>
-    <button class="btn btn-primary" onclick="abrirModalMaterial(null)">+ Novo Item</button>
+    <div class="flex gap-8">
+      <button class="btn btn-secondary" onclick="document.getElementById('input-xml-nf').click()" title="Importar XML de Nota Fiscal">📄 Importar NF-e XML</button>
+      <input type="file" id="input-xml-nf" accept=".xml" style="display:none;" onchange="importarXMLNota(this)">
+      <button class="btn btn-primary" onclick="abrirModalMaterial(null)">+ Novo Item</button>
+    </div>
   </div>
 
   <!-- Toolbar filtros -->
@@ -1052,6 +1056,30 @@
       <button class="btn btn-secondary" onclick="fecharModal('modal-gist-config')">Fechar</button>
       <button class="btn btn-secondary" onclick="testarConexaoGist()">🔍 Testar Conexão</button>
       <button class="btn btn-primary" onclick="salvarConfigGist()">💾 Salvar Configuração</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RESULTADO IMPORTAÇÃO XML -->
+<div class="modal-overlay" id="modal-xml-resultado">
+  <div class="modal" style="max-width:600px;">
+    <h2>📄 IMPORTAÇÃO NF-e XML</h2>
+    <div id="xml-resultado-conteudo"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-xml-resultado')">Fechar</button>
+      <button class="btn btn-primary" id="btn-xml-confirmar" onclick="confirmarImportacaoXML()" style="display:none;">✓ Aplicar Alterações</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECALCULAR ORÇAMENTO -->
+<div class="modal-overlay" id="modal-recalcular">
+  <div class="modal" style="max-width:580px;">
+    <h2>🔄 RECALCULAR ORÇAMENTO</h2>
+    <div id="recalcular-conteudo"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-recalcular')">Cancelar</button>
+      <button class="btn btn-primary" id="btn-recalcular-confirmar" onclick="confirmarRecalculo()">✓ Aplicar Recálculo</button>
     </div>
   </div>
 </div>
@@ -1461,6 +1489,7 @@ function renderDashboard() {
         <span class="orc-status status-${o.status||'rascunho'}">${o.status||'rascunho'}</span>
         <button class="btn btn-secondary btn-xs" title="Duplicar" onclick="event.stopPropagation();duplicarOrcamento('${o.id}')">⧉</button>
         <button class="btn btn-secondary btn-xs" title="Comparar" onclick="event.stopPropagation();abrirComparativo('${o.id}')">⇆</button>
+        <button class="btn btn-secondary btn-xs" title="Recalcular com preços atuais da base" onclick="event.stopPropagation();recalcularOrcamento('${o.id}')">🔄</button>
         <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();excluirOrcamento('${o.id}')">✕</button>
       </div>
     </div>`;
@@ -3311,6 +3340,290 @@ function fecharGaleria(e) {
 function fecharGaleriaForce() {
   document.getElementById('galeria-overlay').classList.remove('aberta');
   document.removeEventListener('keydown', galeriaKeyboard);
+}
+
+// ==================== IMPORTAR XML NF-e ====================
+let _xmlPendente = null; // itens parseados aguardando confirmação
+
+function importarXMLNota(input) {
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const parser   = new DOMParser();
+      const xml      = parser.parseFromString(e.target.result, 'text/xml');
+      const erroXML  = xml.querySelector('parsererror');
+      if(erroXML) throw new Error('Arquivo XML inválido ou corrompido.');
+
+      // Extrai itens da NF-e (det → prod)
+      const produtos = xml.querySelectorAll('det prod, det > prod');
+      if(!produtos.length) throw new Error('Nenhum produto encontrado no XML. Verifique se é uma NF-e válida.');
+
+      const itensNF = [];
+      produtos.forEach(prod => {
+        const xProd = prod.querySelector('xProd')?.textContent?.trim() || '';
+        const vUnCom= parseFloat(prod.querySelector('vUnCom')?.textContent || '0');
+        const qCom  = parseFloat(prod.querySelector('qCom')?.textContent  || '1');
+        const cProd = prod.querySelector('cProd')?.textContent?.trim() || '';
+        const ncm   = prod.querySelector('NCM')?.textContent?.trim() || '';
+        const vProd = parseFloat(prod.querySelector('vProd')?.textContent || '0');
+        const unCom = prod.querySelector('uCom')?.textContent?.trim() || 'un';
+
+        if(!xProd) return;
+        itensNF.push({ xProd, vUnCom, qCom, cProd, ncm, vProd, unCom });
+      });
+
+      // Tenta cruzar com a base existente por similaridade de nome
+      const resultado = itensNF.map(item => {
+        const nomeLower = item.xProd.toLowerCase();
+        // Busca item mais similar na base
+        let melhor = null, melhorScore = 0;
+        state.materiais.forEach(mat => {
+          const score = similaridade(nomeLower, mat.descricao.toLowerCase());
+          if(score > melhorScore) { melhorScore = score; melhor = mat; }
+        });
+
+        return {
+          ...item,
+          matEncontrado: melhorScore > 0.4 ? melhor : null,
+          score: melhorScore,
+          custoAnterior: melhorScore > 0.4 ? melhor?.custo : null,
+          acao: melhorScore > 0.4 ? 'atualizar' : 'adicionar',
+        };
+      });
+
+      _xmlPendente = resultado;
+      mostrarResultadoXML(resultado, file.name);
+
+    } catch(err) {
+      alert(`❌ Erro ao processar XML:\n${err.message}`);
+    } finally {
+      input.value = '';
+    }
+  };
+  reader.readAsText(file, 'ISO-8859-1');
+}
+
+function similaridade(a, b) {
+  // Score simples por palavras em comum
+  const pa = a.split(/\s+/).filter(w=>w.length>2);
+  const pb = b.split(/\s+/).filter(w=>w.length>2);
+  if(!pa.length||!pb.length) return 0;
+  const comuns = pa.filter(w => pb.some(wb => wb.includes(w)||w.includes(wb)));
+  return comuns.length / Math.max(pa.length, pb.length);
+}
+
+function mostrarResultadoXML(resultado, nomeArquivo) {
+  const atualizados = resultado.filter(i=>i.acao==='atualizar');
+  const novos       = resultado.filter(i=>i.acao==='adicionar');
+
+  let html = `
+    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:16px;">
+      📄 ${nomeArquivo} · ${resultado.length} produto(s) encontrado(s)
+    </p>
+    <div style="display:flex;gap:12px;margin-bottom:16px;">
+      <div style="flex:1;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:var(--accent);">${atualizados.length}</div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Serão ATUALIZADOS</div>
+      </div>
+      <div style="flex:1;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:22px;font-weight:700;color:var(--verde);">${novos.length}</div>
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Serão ADICIONADOS</div>
+      </div>
+    </div>`;
+
+  // Tabela de itens
+  html += `<div style="max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+    <table style="width:100%;border-collapse:collapse;font-size:12px;">
+      <thead style="position:sticky;top:0;background:var(--bg3);">
+        <tr>
+          <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Produto na NF</th>
+          <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Item na Base</th>
+          <th style="padding:8px 10px;text-align:right;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Valor NF</th>
+          <th style="padding:8px 10px;text-align:center;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Ação</th>
+        </tr>
+      </thead>
+      <tbody>`;
+
+  resultado.forEach((item, i) => {
+    const bg    = i%2===0?'var(--bg2)':'var(--bg3)';
+    const badge = item.acao==='atualizar'
+      ? `<span style="background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe;font-size:10px;padding:2px 7px;border-radius:20px;">↻ atualizar</span>`
+      : `<span style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;font-size:10px;padding:2px 7px;border-radius:20px;">＋ adicionar</span>`;
+
+    const baseInfo = item.matEncontrado
+      ? `<span style="font-size:11px;color:var(--text2);">${item.matEncontrado.descricao}</span>
+         <br><span style="font-size:10px;color:var(--text4);">Atual: ${fmt(item.matEncontrado.custo)}</span>`
+      : `<span style="font-size:11px;color:var(--text3);font-style:italic;">Novo item</span>`;
+
+    html += `<tr style="background:${bg};">
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);">
+        <div style="font-weight:500;color:var(--text);">${item.xProd}</div>
+        <div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);">Cód: ${item.cProd} · ${item.qCom} ${item.unCom}</div>
+      </td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);">${baseInfo}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--accent);font-family:var(--fonte-cond);">${fmt(item.vUnCom)}</td>
+      <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;">${badge}</td>
+    </tr>`;
+  });
+
+  html += `</tbody></table></div>
+    <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:var(--fonte-cond);">
+      ⚠️ Revise antes de confirmar. O histórico de preços será registrado automaticamente.
+    </p>`;
+
+  document.getElementById('xml-resultado-conteudo').innerHTML = html;
+  document.getElementById('btn-xml-confirmar').style.display = resultado.length ? 'inline-flex' : 'none';
+  abrirModal('modal-xml-resultado');
+}
+
+function confirmarImportacaoXML() {
+  if(!_xmlPendente?.length) return;
+  let atualizados = 0, adicionados = 0;
+
+  _xmlPendente.forEach(item => {
+    if(item.acao === 'atualizar' && item.matEncontrado) {
+      const mat = state.materiais.find(m=>m.id===item.matEncontrado.id);
+      if(mat && mat.custo !== item.vUnCom) {
+        registrarHistoricoPreco(mat.id, mat.custo, item.vUnCom);
+        mat.custo = item.vUnCom;
+        atualizados++;
+      }
+    } else if(item.acao === 'adicionar') {
+      // Determina categoria pelo NCM ou por palavra-chave
+      const cat = inferirCategoria(item.xProd, item.ncm);
+      const prefix = { Câmeras:'CAM',Gravadores:'NVR',Armazenamento:'HD','Switches/Rede':'SW',
+        Cabeamento:'CAB','Controle de Acesso':'FAC','Módulo Guarita':'GUA','Cerca Elétrica':'CER',
+        Energia:'ENE',Infraestrutura:'INF',Displays:'DIS',Computadores:'COM',
+        'Kit Instalação':'KIT','Mão de Obra':'MOB',Outros:'OTH' }[cat]||'OTH';
+      const newId = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
+      state.materiais.push({
+        id: newId,
+        categoria: cat,
+        descricao: item.xProd,
+        unidade: item.unCom.toLowerCase() || 'un',
+        custo: item.vUnCom,
+      });
+      adicionados++;
+    }
+  });
+
+  salvarState();
+  _xmlPendente = null;
+  fecharModal('modal-xml-resultado');
+  renderMateriais();
+  alert(`✅ Importação concluída!\n\n${atualizados} item(s) atualizado(s)\n${adicionados} item(s) adicionado(s)\n\nHistórico de preços registrado.`);
+}
+
+function inferirCategoria(nome, ncm) {
+  const n = nome.toLowerCase();
+  if(/c[âa]mera|cam\b|dome|bullet|varifocal|ip\b.*cam/.test(n)) return 'Câmeras';
+  if(/nvr|dvr|gravador/.test(n)) return 'Gravadores';
+  if(/hd\b|disco|ssd|storage/.test(n)) return 'Armazenamento';
+  if(/switch|poe|hub/.test(n)) return 'Switches/Rede';
+  if(/cabo|cat5|cat6|conector|rj45/.test(n)) return 'Cabeamento';
+  if(/facial|biometri|acesso|leitor|controlador/.test(n)) return 'Controle de Acesso';
+  if(/nobreak|fonte|energia|bateria/.test(n)) return 'Energia';
+  if(/rack|caixa|eletroduto|infra/.test(n)) return 'Infraestrutura';
+  if(/tv\b|monitor|display|tela/.test(n)) return 'Displays';
+  if(/computador|pc\b|processador|notebook/.test(n)) return 'Computadores';
+  if(/cerca|fio|arame|sirene|haste/.test(n)) return 'Cerca Elétrica';
+  if(/guarita|portao|receptor|controle remoto/.test(n)) return 'Módulo Guarita';
+  return 'Outros';
+}
+
+// ==================== RECALCULAR ORÇAMENTO COM PREÇOS ATUAIS ====================
+let _recalcularId = null;
+
+function recalcularOrcamento(id) {
+  const orc = state.orcamentos.find(o=>o.id===id);
+  if(!orc) return;
+  _recalcularId = id;
+
+  const mult      = parseFloat(orc.multiplicador||1.4);
+  const totalAtual= calcTotalVenda(orc);
+
+  // Simula novo total com preços atuais da base
+  let totalNovo = 0;
+  let itensAlterados = 0;
+  const detalhes = [];
+
+  orc.fases.forEach(f => {
+    (f.itens||[]).forEach(item => {
+      const matAtual = state.materiais.find(m=>m.id===item.matId);
+      if(!matAtual) return;
+      const isMob    = matAtual.categoria==='Mão de Obra';
+      const qtd      = parseInt(item.qtd)||0;
+
+      // Preço atual da base
+      const custoNovo  = matAtual.custo;
+      const vendaNovo  = isMob ? custoNovo : custoNovo*mult;
+      const totalItem  = vendaNovo*qtd;
+      totalNovo += totalItem;
+
+      // Preço que estava no orçamento (recalcula pelo custo salvo)
+      const vendaAnt = isMob ? matAtual.custo : matAtual.custo*mult;
+
+      if(Math.abs(custoNovo - matAtual.custo) > 0.01) itensAlterados++;
+      detalhes.push({ desc: item.descCustom||matAtual.descricao, qtd, custoNovo, vendaNovo, totalItem });
+    });
+  });
+
+  const diff     = totalNovo - totalAtual;
+  const diffPct  = totalAtual > 0 ? ((diff/totalAtual)*100).toFixed(1) : 0;
+  const parcelas = parseInt(orc.parcelas||12);
+  const corDiff  = diff > 0 ? '#dc2626' : diff < 0 ? '#16a34a' : 'var(--text3)';
+  const sinalDiff= diff > 0 ? '▲' : diff < 0 ? '▼' : '=';
+
+  const html = `
+    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:16px;">
+      Orçamento: <strong>${orc.nome}</strong> · Versão original de ${orc.data||'?'}
+    </p>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
+      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">VALOR ATUAL</div>
+        <div style="font-size:16px;font-weight:700;color:var(--text);font-family:var(--fonte-cond);">${fmt(totalAtual)}</div>
+      </div>
+      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">NOVO VALOR</div>
+        <div style="font-size:16px;font-weight:700;color:var(--accent);font-family:var(--fonte-cond);">${fmt(totalNovo)}</div>
+      </div>
+      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">DIFERENÇA</div>
+        <div style="font-size:16px;font-weight:700;color:${corDiff};font-family:var(--fonte-cond);">${sinalDiff} ${fmt(Math.abs(diff))} (${Math.abs(diffPct)}%)</div>
+      </div>
+    </div>
+    <div style="padding:10px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:14px;font-size:12px;">
+      <span style="color:var(--text2);">Nova parcela (${parcelas}×):</span>
+      <strong style="color:var(--accent);font-family:var(--fonte-cond);margin-left:8px;">${fmt(totalNovo/parcelas)}</strong>
+      <span style="color:var(--text4);font-size:11px;margin-left:8px;">(era ${fmt(totalAtual/parcelas)})</span>
+    </div>
+    <p style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
+      ⚠️ O recálculo atualiza os custos usando os preços atuais da Base de Materiais. 
+      O markup (${((mult-1)*100).toFixed(0)}%) é mantido. Uma nova versão será criada.
+    </p>`;
+
+  document.getElementById('recalcular-conteudo').innerHTML = html;
+  abrirModal('modal-recalcular');
+}
+
+function confirmarRecalculo() {
+  const orc = state.orcamentos.find(o=>o.id===_recalcularId);
+  if(!orc) return;
+
+  // Os custos na base já estão atualizados — só precisa forçar re-save
+  // pois calcTotalVenda sempre busca custo atual da base
+  orc.atualizadoEm  = new Date().toISOString();
+  orc.recalculadoEm = new Date().toLocaleString('pt-BR');
+
+  salvarState();
+  const novaVersao = incrementarVersao();
+  mostrarVersao();
+
+  fecharModal('modal-recalcular');
+  renderDashboard();
+  alert(`✅ Orçamento recalculado com preços atuais! (v${novaVersao})\n\nO novo total já está refletido no dashboard.\nAbra o orçamento para gerar nova proposta.`);
 }
 
 // ==================== DESCONTO ====================

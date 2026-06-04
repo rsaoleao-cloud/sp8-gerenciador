@@ -930,60 +930,119 @@
 
 <!-- MODAL ADICIONAR FOTO GOOGLE DRIVE -->
 <div class="modal-overlay" id="modal-foto-drive">
-  <div class="modal" style="max-width:500px;">
-    <h2>📷 ADICIONAR FOTO</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:var(--fonte-cond);">
-      Cole o link de compartilhamento do Google Drive. A foto deve estar compartilhada como <strong>"Qualquer pessoa com o link"</strong>.
-    </p>
+  <div class="modal" style="max-width:520px;">
+    <h2>📷 ADICIONAR FOTO — Google Drive</h2>
 
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div class="campo">
-        <label>Link do Google Drive</label>
-        <input type="text" id="drive-link-input"
-          placeholder="https://drive.google.com/file/d/1ABC.../view"
-          oninput="previewDriveLink(this.value)">
-        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
-          Cole vários links um por vez ou use o botão "＋ Mais" para adicionar outro.
-        </span>
+    <!-- Tabs: Picker vs Link -->
+    <div style="display:flex;gap:0;margin-bottom:18px;border:1px solid var(--border);border-radius:8px;overflow:hidden;">
+      <button id="tab-picker" onclick="trocarTabFoto('picker')"
+        style="flex:1;padding:9px;font-family:var(--fonte);font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--accent);color:#fff;transition:all .15s;">
+        📂 Navegar no Drive
+      </button>
+      <button id="tab-link" onclick="trocarTabFoto('link')"
+        style="flex:1;padding:9px;font-family:var(--fonte);font-size:12px;font-weight:600;border:none;cursor:pointer;background:var(--bg3);color:var(--text3);transition:all .15s;">
+        🔗 Colar Link
+      </button>
+    </div>
+
+    <!-- ABA: PICKER -->
+    <div id="painel-picker">
+      <div id="picker-status" style="font-size:13px;color:var(--text3);margin-bottom:12px;font-family:var(--fonte-cond);">
+        Configure a API Key do Google para navegar no Drive.
       </div>
 
-      <div class="campo">
-        <label>Nome / Descrição (opcional)</label>
-        <input type="text" id="drive-foto-nome" placeholder="Ex: Entrada social, Clausura, Corredor...">
+      <!-- API Key -->
+      <div id="picker-config-wrap">
+        <div class="campo" style="margin-bottom:12px;">
+          <label>🔑 Google API Key</label>
+          <div style="display:flex;gap:8px;">
+            <input type="password" id="google-api-key-input"
+              placeholder="AIzaSy..." autocomplete="off" style="flex:1;"
+              onchange="salvarGoogleApiKey()">
+            <button class="btn btn-secondary btn-sm" onclick="toggleSenhaGoogleKey()">👁</button>
+          </div>
+          <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Salva só neste navegador.</span>
+        </div>
+
+        <!-- Guia API Key -->
+        <details id="guia-google-picker" style="margin-bottom:14px;">
+          <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:6px 0;">
+            📖 Como criar a API Key do Google (gratuito, 5 minutos)
+          </summary>
+          <div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
+            <div style="display:flex;flex-direction:column;gap:8px;">
+              <div style="display:flex;gap:10px;">
+                <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">1</span>
+                <span>Acesse <a href="https://console.cloud.google.com" target="_blank" style="color:var(--accent);">console.cloud.google.com</a> → selecione o projeto <strong>SP8 Gerenciador</strong> (o mesmo que usou para o Gist)</span>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">2</span>
+                <span>Menu lateral → <strong>APIs e serviços → Biblioteca</strong> → busque <strong>Google Picker API</strong> → Ativar</span>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">3</span>
+                <span>Menu lateral → <strong>APIs e serviços → Credenciais → + Criar credenciais → Chave de API</strong></span>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">4</span>
+                <span>Copie a chave (<code style="background:#e2e8f0;padding:1px 4px;border-radius:3px;">AIzaSy...</code>) e cole no campo acima</span>
+              </div>
+              <div style="display:flex;gap:10px;">
+                <span style="background:#16a34a;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">5</span>
+                <span>Clique em <strong>Salvar</strong> e depois em <strong>📂 Abrir Google Drive</strong></span>
+              </div>
+            </div>
+          </div>
+        </details>
+
+        <button class="btn btn-primary" onclick="abrirGooglePicker()" style="width:100%;justify-content:center;">
+          📂 Abrir Google Drive
+        </button>
       </div>
 
-      <!-- Preview -->
-      <div id="drive-preview-wrap" style="display:none;">
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:6px;">Preview:</div>
-        <img id="drive-preview-img" src="" alt="preview"
-          style="max-width:100%;max-height:200px;border-radius:8px;border:1px solid var(--border);object-fit:contain;background:var(--bg3);">
-        <div id="drive-preview-erro" style="display:none;font-size:12px;color:var(--vermelho);padding:8px;background:#fee2e2;border-radius:6px;border:1px solid #fca5a5;">
-          ⚠️ Não foi possível carregar a imagem. Verifique se o arquivo está compartilhado como "Qualquer pessoa com o link".
+      <!-- Foto selecionada pelo picker -->
+      <div id="picker-selecionado" style="display:none;margin-top:14px;">
+        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:6px;">Foto selecionada:</div>
+        <div style="display:flex;gap:12px;align-items:center;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);">
+          <img id="picker-thumb" src="" style="width:80px;height:60px;object-fit:cover;border-radius:6px;border:1px solid var(--border);">
+          <div style="flex:1;min-width:0;">
+            <div id="picker-nome-arquivo" style="font-size:13px;font-weight:600;color:var(--text);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></div>
+            <div id="picker-id-arquivo" style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);margin-top:2px;"></div>
+          </div>
         </div>
       </div>
+    </div>
 
-      <!-- Instruções -->
-      <details>
-        <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;">
-          📖 Como compartilhar no Google Drive
-        </summary>
-        <div style="margin-top:10px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.8;border:1px solid var(--border);">
-          <strong>No computador:</strong><br>
-          1. Abra o Google Drive → clique direito na foto<br>
-          2. <strong>Compartilhar → Compartilhar</strong><br>
-          3. Em "Acesso Geral" selecione <strong>"Qualquer pessoa com o link"</strong><br>
-          4. Clique em <strong>Copiar link</strong> → cole aqui<br><br>
-          <strong>No celular:</strong><br>
-          1. Abra o app Google Drive → segure o arquivo<br>
-          2. Toque em <strong>Compartilhar</strong> → <strong>Copiar link</strong><br>
-          3. Cole aqui
+    <!-- ABA: LINK -->
+    <div id="painel-link" style="display:none;">
+      <div style="display:flex;flex-direction:column;gap:14px;">
+        <div class="campo">
+          <label>Link do Google Drive</label>
+          <input type="text" id="drive-link-input"
+            placeholder="https://drive.google.com/file/d/1ABC.../view"
+            oninput="previewDriveLink(this.value)">
         </div>
-      </details>
+        <!-- Preview -->
+        <div id="drive-preview-wrap" style="display:none;">
+          <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:6px;">Preview:</div>
+          <img id="drive-preview-img" src="" alt="preview"
+            style="max-width:100%;max-height:180px;border-radius:8px;border:1px solid var(--border);object-fit:contain;background:var(--bg3);">
+          <div id="drive-preview-erro" style="display:none;font-size:12px;color:var(--vermelho);padding:8px;background:#fee2e2;border-radius:6px;border:1px solid #fca5a5;">
+            ⚠️ Não foi possível carregar. Verifique se está compartilhada como "Qualquer pessoa com o link".
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Nome comum às duas abas -->
+    <div class="campo" style="margin-top:14px;">
+      <label>Nome / Descrição (opcional)</label>
+      <input type="text" id="drive-foto-nome" placeholder="Ex: Entrada social, Clausura, Corredor...">
     </div>
 
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="fecharModal('modal-foto-drive')">Cancelar</button>
-      <button class="btn btn-primary" onclick="confirmarFotoDrive()">✓ Adicionar Foto</button>
+      <button class="btn btn-primary" id="btn-confirmar-foto" onclick="confirmarFotoDrive()">✓ Adicionar Foto</button>
     </div>
   </div>
 </div>
@@ -3090,95 +3149,164 @@ function importarDados(input) {
   reader.readAsText(file);
 }
 
-// ==================== FOTOS POR ITEM — GOOGLE DRIVE ====================
-let _fotoFaseId = null;
-let _fotoIdx    = null;
+// ==================== FOTOS POR ITEM — GOOGLE DRIVE + PICKER ====================
+let _fotoFaseId   = null;
+let _fotoIdx      = null;
 let _galeriaFaseId = null;
-let _galeriaIdx    = null;
-let _galeriaAtual  = 0;
+let _galeriaIdx   = null;
+let _galeriaAtual = 0;
+let _pickerFileId = null;
+let _tabFotoAtiva = 'picker';
+const GOOGLE_KEY_STORAGE = 'sp8_google_api_key';
 
-// Converte link de compartilhamento do Drive para URL de exibição direta
+// ── Tabs do modal ────────────────────────────────────────────────────────────
+function trocarTabFoto(tab) {
+  _tabFotoAtiva = tab;
+  document.getElementById('painel-picker').style.display = tab==='picker'?'block':'none';
+  document.getElementById('painel-link').style.display   = tab==='link'?'block':'none';
+  document.getElementById('tab-picker').style.background = tab==='picker'?'var(--accent)':'var(--bg3)';
+  document.getElementById('tab-picker').style.color      = tab==='picker'?'#fff':'var(--text3)';
+  document.getElementById('tab-link').style.background   = tab==='link'?'var(--accent)':'var(--bg3)';
+  document.getElementById('tab-link').style.color        = tab==='link'?'#fff':'var(--text3)';
+}
+
+function salvarGoogleApiKey() {
+  const key = document.getElementById('google-api-key-input').value.trim();
+  if(key) {
+    localStorage.setItem(GOOGLE_KEY_STORAGE, key);
+    document.getElementById('guia-google-picker')?.removeAttribute('open');
+  }
+}
+
+function toggleSenhaGoogleKey() {
+  const inp = document.getElementById('google-api-key-input');
+  if(inp) inp.type = inp.type==='password'?'text':'password';
+}
+
+function getGoogleApiKey() {
+  return localStorage.getItem(GOOGLE_KEY_STORAGE)||'';
+}
+
+function abrirFotoDrive(faseId, idx) {
+  _fotoFaseId   = faseId;
+  _fotoIdx      = idx;
+  _pickerFileId = null;
+  document.getElementById('drive-link-input').value  = '';
+  document.getElementById('drive-foto-nome').value   = '';
+  document.getElementById('drive-preview-wrap').style.display  = 'none';
+  document.getElementById('drive-preview-erro').style.display  = 'none';
+  document.getElementById('picker-selecionado').style.display  = 'none';
+  const savedKey = getGoogleApiKey();
+  const keyInp   = document.getElementById('google-api-key-input');
+  if(keyInp) keyInp.value = savedKey;
+  if(savedKey) document.getElementById('guia-google-picker')?.removeAttribute('open');
+  trocarTabFoto(savedKey ? 'picker' : 'link');
+  abrirModal('modal-foto-drive');
+}
+
+function abrirGooglePicker() {
+  const apiKey = getGoogleApiKey() || document.getElementById('google-api-key-input').value.trim();
+  if(!apiKey) { alert('Configure a Google API Key primeiro.'); return; }
+  salvarGoogleApiKey();
+  if(!window.gapi) {
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/api.js';
+    script.onload = () => iniciarPicker(apiKey);
+    document.head.appendChild(script);
+  } else {
+    iniciarPicker(apiKey);
+  }
+}
+
+function iniciarPicker(apiKey) {
+  gapi.load('picker', () => { criarPicker(apiKey); });
+}
+
+function criarPicker(apiKey) {
+  const view = new google.picker.DocsView(google.picker.ViewId.DOCS_IMAGES)
+    .setIncludeFolders(true)
+    .setSelectFolderEnabled(false);
+  const picker = new google.picker.PickerBuilder()
+    .setDeveloperKey(apiKey)
+    .addView(view)
+    .addView(new google.picker.DocsView(google.picker.ViewId.DOCS_IMAGES_AND_VIDEOS))
+    .setTitle('Selecione uma foto do Google Drive')
+    .setCallback(pickerCallback)
+    .build();
+  picker.setVisible(true);
+}
+
+function pickerCallback(data) {
+  if(data.action !== google.picker.Action.PICKED) return;
+  const doc = data.docs[0];
+  _pickerFileId = doc.id;
+  const urlThumb = doc.thumbnailLink || `https://drive.google.com/thumbnail?id=${doc.id}&sz=w200`;
+  document.getElementById('picker-selecionado').style.display = 'block';
+  document.getElementById('picker-thumb').src    = urlThumb;
+  document.getElementById('picker-nome-arquivo').textContent = doc.name || 'Foto selecionada';
+  document.getElementById('picker-id-arquivo').textContent   = `ID: ${doc.id}`;
+  const nomeInp = document.getElementById('drive-foto-nome');
+  if(nomeInp && !nomeInp.value) nomeInp.value = (doc.name||'').replace(/\.[^.]+$/, '');
+}
+
 function converterLinkDrive(link) {
   if(!link) return null;
   link = link.trim();
-  // Formato: https://drive.google.com/file/d/ID/view
   const m1 = link.match(/\/file\/d\/([a-zA-Z0-9_-]+)/);
   if(m1) return `https://drive.google.com/uc?export=view&id=${m1[1]}`;
-  // Formato: https://drive.google.com/open?id=ID
   const m2 = link.match(/[?&]id=([a-zA-Z0-9_-]+)/);
   if(m2) return `https://drive.google.com/uc?export=view&id=${m2[1]}`;
-  // Já é URL direta
   if(link.includes('drive.google.com/uc')) return link;
   return null;
 }
 
-function abrirFotoDrive(faseId, idx) {
-  _fotoFaseId = faseId;
-  _fotoIdx    = idx;
-  document.getElementById('drive-link-input').value = '';
-  document.getElementById('drive-foto-nome').value  = '';
-  document.getElementById('drive-preview-wrap').style.display = 'none';
-  document.getElementById('drive-preview-erro').style.display = 'none';
-  abrirModal('modal-foto-drive');
-  setTimeout(()=>document.getElementById('drive-link-input').focus(), 100);
-}
-
 function previewDriveLink(val) {
-  const url = converterLinkDrive(val);
+  const url  = converterLinkDrive(val);
   const wrap = document.getElementById('drive-preview-wrap');
   const img  = document.getElementById('drive-preview-img');
   const erro = document.getElementById('drive-preview-erro');
-
   if(!url) { wrap.style.display='none'; return; }
-
   wrap.style.display = 'block';
   erro.style.display = 'none';
   img.style.display  = 'block';
   img.src = url;
-  img.onerror = () => {
-    img.style.display  = 'none';
-    erro.style.display = 'block';
-  };
-  img.onload = () => {
-    img.style.display  = 'block';
-    erro.style.display = 'none';
-  };
+  img.onerror = () => { img.style.display='none'; erro.style.display='block'; };
+  img.onload  = () => { img.style.display='block'; erro.style.display='none'; };
 }
 
 function confirmarFotoDrive() {
-  const linkBruto = document.getElementById('drive-link-input').value.trim();
-  const nome      = document.getElementById('drive-foto-nome').value.trim();
-  if(!linkBruto) { alert('Cole o link do Google Drive.'); return; }
-
-  const urlDireta = converterLinkDrive(linkBruto);
-  if(!urlDireta) {
-    alert('Link inválido.\n\nCertifique-se de copiar o link de compartilhamento do Google Drive.\nExemplo: https://drive.google.com/file/d/1ABC.../view');
-    return;
-  }
-
-  const f = state.fasesAtivas.find(f=>f.id===_fotoFaseId);
+  const nome = document.getElementById('drive-foto-nome').value.trim();
+  const f    = state.fasesAtivas.find(f=>f.id===_fotoFaseId);
   if(!f||!f.itens[_fotoIdx]) return;
   if(!f.itens[_fotoIdx].fotos) f.itens[_fotoIdx].fotos = [];
-
+  let urlDireta, linkOriginal, nomeArquivo;
+  if(_tabFotoAtiva === 'picker' && _pickerFileId) {
+    urlDireta    = `https://drive.google.com/uc?export=view&id=${_pickerFileId}`;
+    linkOriginal = `https://drive.google.com/file/d/${_pickerFileId}/view`;
+    nomeArquivo  = nome || document.getElementById('picker-nome-arquivo').textContent || `Foto ${f.itens[_fotoIdx].fotos.length+1}`;
+  } else {
+    const linkBruto = document.getElementById('drive-link-input').value.trim();
+    if(!linkBruto) { alert('Cole o link do Google Drive ou selecione uma foto.'); return; }
+    urlDireta = converterLinkDrive(linkBruto);
+    if(!urlDireta) { alert('Link inválido.\n\nExemplo válido: https://drive.google.com/file/d/1ABC.../view'); return; }
+    linkOriginal = linkBruto;
+    nomeArquivo  = nome || `Foto ${f.itens[_fotoIdx].fotos.length+1}`;
+  }
   f.itens[_fotoIdx].fotos.push({
-    nome:        nome || `Foto ${f.itens[_fotoIdx].fotos.length + 1}`,
-    data:        urlDireta,    // URL do Drive (não base64)
-    linkOriginal:linkBruto,
-    tipo:        'drive',
+    nome: nomeArquivo, data: urlDireta,
+    linkOriginal, tipo: 'drive',
     adicionadaEm: new Date().toISOString(),
   });
-
+  _pickerFileId = null;
   fecharModal('modal-foto-drive');
   renderFases();
 }
 
 function removerFoto(faseId, idx, fi) {
   const f = state.fasesAtivas.find(f=>f.id===faseId);
-  if(f&&f.itens[idx]&&f.itens[idx].fotos) {
-    f.itens[idx].fotos.splice(fi, 1);
-    renderFases();
-  }
+  if(f&&f.itens[idx]&&f.itens[idx].fotos) { f.itens[idx].fotos.splice(fi,1); renderFases(); }
 }
+
 
 // ── Galeria lightbox ────────────────────────────────────────────────────────
 function abrirGaleriaFoto(faseId, idx, fotoIdx) {

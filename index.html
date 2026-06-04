@@ -875,7 +875,15 @@
           </select>
         </div>
         <div class="campo"><label>Custo (R$)</label><input type="number" id="mm-custo" step="0.01" min="0" placeholder="0,00"></div>
-        <div class="campo"><label>Código</label><input type="text" id="mm-cod" placeholder="AUTO"></div>
+        <div class="campo"><label>Código Interno</label><input type="text" id="mm-cod" placeholder="AUTO"></div>
+      </div>
+      <!-- Campo cProd do fornecedor -->
+      <div class="campo">
+        <label>Código do Fornecedor (cProd da NF-e)</label>
+        <input type="text" id="mm-cprod" placeholder="Ex: 4564700 — usado para cruzar com XML de NF automaticamente">
+        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-top:3px;display:block;">
+          💡 Preencha após a primeira importação de NF. Nas próximas o sistema identificará automaticamente.
+        </span>
       </div>
     </div>
     <div class="modal-actions">
@@ -2557,7 +2565,10 @@ function rowMaterial(m, mult) {
     onmouseenter="mostrarTooltipGrupo(event,'${m.categoria}')"
     onmouseleave="ocultarTooltipGrupo()">
     <td class="td-id">${m.id}</td>
-    <td class="td-desc">${m.descricao}</td>
+    <td class="td-desc">
+      ${m.descricao}
+      ${m.cProd?`<div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);margin-top:2px;">cProd: ${m.cProd}</div>`:''}
+    </td>
     <td class="td-un">${m.unidade}</td>
     <td class="td-custo">${fmt(m.custo)}</td>
     <td class="td-venda">${venda!==null?fmt(venda):'<span style="color:#444;">—</span>'}</td>
@@ -2620,42 +2631,45 @@ function abrirModalMaterial(id) {
     const m = state.materiais.find(m=>m.id===id);
     if(!m) return;
     document.getElementById('modal-mat-titulo').textContent = 'EDITAR MATERIAL';
-    document.getElementById('mm-id').value = m.id;
-    document.getElementById('mm-desc').value = m.descricao;
-    document.getElementById('mm-cat').value = m.categoria;
-    document.getElementById('mm-un').value = m.unidade;
+    document.getElementById('mm-id').value    = m.id;
+    document.getElementById('mm-desc').value  = m.descricao;
+    document.getElementById('mm-cat').value   = m.categoria;
+    document.getElementById('mm-un').value    = m.unidade;
     document.getElementById('mm-custo').value = m.custo;
-    document.getElementById('mm-cod').value = m.id;
-    document.getElementById('btn-excluir-mat').style.display = 'inline-flex';
-    document.getElementById('btn-historico-mat').style.display = 'inline-flex';
+    document.getElementById('mm-cod').value   = m.id;
+    document.getElementById('mm-cprod').value = m.cProd || '';
+    document.getElementById('btn-excluir-mat').style.display  = 'inline-flex';
+    document.getElementById('btn-historico-mat').style.display= 'inline-flex';
   } else {
     document.getElementById('modal-mat-titulo').textContent = 'NOVO MATERIAL';
-    document.getElementById('mm-id').value = '';
-    document.getElementById('mm-desc').value = '';
-    document.getElementById('mm-cat').value = 'Câmeras';
-    document.getElementById('mm-un').value = 'un';
+    document.getElementById('mm-id').value    = '';
+    document.getElementById('mm-desc').value  = '';
+    document.getElementById('mm-cat').value   = 'Câmeras';
+    document.getElementById('mm-un').value    = 'un';
     document.getElementById('mm-custo').value = '';
-    document.getElementById('mm-cod').value = '';
-    document.getElementById('btn-excluir-mat').style.display = 'none';
-    document.getElementById('btn-historico-mat').style.display = 'none';
+    document.getElementById('mm-cod').value   = '';
+    document.getElementById('mm-cprod').value = '';
+    document.getElementById('btn-excluir-mat').style.display  = 'none';
+    document.getElementById('btn-historico-mat').style.display= 'none';
   }
   abrirModal('modal-material');
 }
 
 function salvarMaterial() {
-  const id = document.getElementById('mm-id').value;
-  const desc = document.getElementById('mm-desc').value.trim();
+  const id    = document.getElementById('mm-id').value;
+  const desc  = document.getElementById('mm-desc').value.trim();
   if(!desc) { alert('Informe a descrição.'); return; }
-  const cat = document.getElementById('mm-cat').value;
-  const un = document.getElementById('mm-un').value;
+  const cat   = document.getElementById('mm-cat').value;
+  const un    = document.getElementById('mm-un').value;
   const custo = parseFloat(document.getElementById('mm-custo').value)||0;
+  const cprod = document.getElementById('mm-cprod').value.trim();
 
   if(id) {
     const m = state.materiais.find(m=>m.id===id);
     if(m) {
-      // Registra histórico se o preço mudou
       if(m.custo !== custo) registrarHistoricoPreco(id, m.custo, custo);
-      m.descricao=desc; m.categoria=cat; m.unidade=un; m.custo=custo;
+      m.descricao = desc; m.categoria = cat; m.unidade = un; m.custo = custo;
+      if(cprod) m.cProd = cprod; else delete m.cProd;
     }
   } else {
     const prefixos = {Câmeras:'CAM',Gravadores:'NVR',Armazenamento:'HD',
@@ -2664,8 +2678,10 @@ function salvarMaterial() {
       Infraestrutura:'INF',Displays:'DIS',Computadores:'COM',
       'Kit Instalação':'KIT','Mão de Obra':'MOB',Outros:'OTH'};
     const prefix = prefixos[cat]||'OTH';
-    const newId = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
-    state.materiais.push({ id:newId, categoria:cat, descricao:desc, unidade:un, custo });
+    const newId  = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
+    const novoMat = { id:newId, categoria:cat, descricao:desc, unidade:un, custo };
+    if(cprod) novoMat.cProd = cprod;
+    state.materiais.push(novoMat);
   }
   salvarState();
   fecharModal('modal-material');
@@ -3351,12 +3367,23 @@ function importarXMLNota(input) {
   const reader = new FileReader();
   reader.onload = e => {
     try {
-      const parser   = new DOMParser();
-      const xml      = parser.parseFromString(e.target.result, 'text/xml');
-      const erroXML  = xml.querySelector('parsererror');
+      const parser  = new DOMParser();
+      const xml     = parser.parseFromString(e.target.result, 'text/xml');
+      const erroXML = xml.querySelector('parsererror');
       if(erroXML) throw new Error('Arquivo XML inválido ou corrompido.');
 
-      // Extrai itens da NF-e (det → prod)
+      // ── Extrai data de emissão da NF ──────────────────────────────────────
+      // dhEmi ex: 2024-03-15T10:30:00-03:00 ou dEmi: 2024-03-15
+      const dhEmiStr = xml.querySelector('dhEmi')?.textContent ||
+                       xml.querySelector('dEmi')?.textContent || '';
+      const dataNF   = dhEmiStr ? new Date(dhEmiStr) : null;
+      const dataNFLabel = dataNF
+        ? dataNF.toLocaleDateString('pt-BR')
+        : 'data não encontrada';
+
+      // Carrega histórico de preços para comparar datas
+      const hist = JSON.parse(localStorage.getItem(HISTORICO_KEY)||'{}');
+
       const produtos = xml.querySelectorAll('det prod, det > prod');
       if(!produtos.length) throw new Error('Nenhum produto encontrado no XML. Verifique se é uma NF-e válida.');
 
@@ -3369,32 +3396,64 @@ function importarXMLNota(input) {
         const ncm   = prod.querySelector('NCM')?.textContent?.trim() || '';
         const vProd = parseFloat(prod.querySelector('vProd')?.textContent || '0');
         const unCom = prod.querySelector('uCom')?.textContent?.trim() || 'un';
-
         if(!xProd) return;
         itensNF.push({ xProd, vUnCom, qCom, cProd, ncm, vProd, unCom });
       });
 
-      // Tenta cruzar com a base existente por similaridade de nome
+      // ── Cruza com a base: cProd primeiro, depois similaridade ────────────
       const resultado = itensNF.map(item => {
         const nomeLower = item.xProd.toLowerCase();
-        // Busca item mais similar na base
-        let melhor = null, melhorScore = 0;
-        state.materiais.forEach(mat => {
-          const score = similaridade(nomeLower, mat.descricao.toLowerCase());
-          if(score > melhorScore) { melhorScore = score; melhor = mat; }
-        });
+
+        // 1. Tenta cruzar pelo cProd do fornecedor (match exato)
+        let encontradoPorCodigo = state.materiais.find(m =>
+          m.cProd && m.cProd.toString().trim() === item.cProd.toString().trim()
+        ) || null;
+
+        // 2. Fallback: similaridade de nome
+        let melhor = encontradoPorCodigo;
+        let melhorScore = encontradoPorCodigo ? 1 : 0;
+        let metodo = encontradoPorCodigo ? 'cProd' : 'nome';
+
+        if(!encontradoPorCodigo) {
+          state.materiais.forEach(mat => {
+            const score = similaridade(nomeLower, mat.descricao.toLowerCase());
+            if(score > melhorScore) { melhorScore = score; melhor = mat; }
+          });
+          metodo = melhorScore > 0.4 ? 'nome' : null;
+        }
+
+        const encontrado = melhorScore > 0 ? melhor : null;
+
+        // Verifica se NF é mais antiga que o último preço registrado
+        let bloqueado = false;
+        let motivoBloqueio = '';
+        if(encontrado && dataNF) {
+          const entradas = hist[encontrado.id] || [];
+          if(entradas.length) {
+            const ultimaAtualizacao = new Date(entradas[entradas.length-1].data);
+            if(dataNF < ultimaAtualizacao) {
+              bloqueado = true;
+              motivoBloqueio = `NF de ${dataNFLabel} é anterior à última atualização (${ultimaAtualizacao.toLocaleDateString('pt-BR')})`;
+            }
+          }
+        }
 
         return {
           ...item,
-          matEncontrado: melhorScore > 0.4 ? melhor : null,
+          dataNF,
+          dataNFLabel,
+          matEncontrado: encontrado,
           score: melhorScore,
-          custoAnterior: melhorScore > 0.4 ? melhor?.custo : null,
-          acao: melhorScore > 0.4 ? 'atualizar' : 'adicionar',
+          metodo, // 'cProd' | 'nome' | null
+          custoAnterior: encontrado?.custo || null,
+          acao: encontrado ? 'atualizar' : 'adicionar',
+          bloqueado,
+          motivoBloqueio,
         };
       });
 
       _xmlPendente = resultado;
-      mostrarResultadoXML(resultado, file.name);
+      mostrarResultadoXML(resultado, file.name, dataNFLabel);
 
     } catch(err) {
       alert(`❌ Erro ao processar XML:\n${err.message}`);
@@ -3414,95 +3473,133 @@ function similaridade(a, b) {
   return comuns.length / Math.max(pa.length, pb.length);
 }
 
-function mostrarResultadoXML(resultado, nomeArquivo) {
-  const atualizados = resultado.filter(i=>i.acao==='atualizar');
+function mostrarResultadoXML(resultado, nomeArquivo, dataNFLabel) {
+  const atualizados = resultado.filter(i=>i.acao==='atualizar' && !i.bloqueado);
   const novos       = resultado.filter(i=>i.acao==='adicionar');
+  const bloqueados  = resultado.filter(i=>i.bloqueado);
 
   let html = `
-    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:16px;">
-      📄 ${nomeArquivo} · ${resultado.length} produto(s) encontrado(s)
-    </p>
-    <div style="display:flex;gap:12px;margin-bottom:16px;">
-      <div style="flex:1;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-        <div style="font-size:22px;font-weight:700;color:var(--accent);">${atualizados.length}</div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Serão ATUALIZADOS</div>
-      </div>
-      <div style="flex:1;padding:12px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-        <div style="font-size:22px;font-weight:700;color:var(--verde);">${novos.length}</div>
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Serão ADICIONADOS</div>
-      </div>
-    </div>`;
+    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:14px;">
+      📄 ${nomeArquivo}
+      <span style="margin-left:8px;background:var(--bg4);padding:2px 8px;border-radius:4px;font-size:11px;">
+        Data NF: <strong>${dataNFLabel}</strong>
+      </span>
+    </p>`;
 
-  // Tabela de itens
-  html += `<div style="max-height:320px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
+  // Aviso se houver itens bloqueados
+  if(bloqueados.length) {
+    html += `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#854d0e;">
+      ⚠️ <strong>${bloqueados.length} item(s) NÃO serão atualizados</strong> pois esta NF é mais antiga que o preço já registrado na base.
+    </div>`;
+  }
+
+  html += `<div style="display:flex;gap:10px;margin-bottom:14px;">
+    <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:var(--accent);">${atualizados.length}</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">Atualizar preço</div>
+    </div>
+    <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:var(--verde);">${novos.length}</div>
+      <div style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">Adicionar novo</div>
+    </div>
+    <div style="flex:1;padding:10px;background:#fef9c3;border-radius:8px;border:1px solid #fde047;text-align:center;">
+      <div style="font-size:20px;font-weight:700;color:#a16207;">${bloqueados.length}</div>
+      <div style="font-size:10px;color:#a16207;font-family:var(--fonte-cond);">Bloqueados (NF antiga)</div>
+    </div>
+  </div>`;
+
+  // Tabela
+  html += `<div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
     <table style="width:100%;border-collapse:collapse;font-size:12px;">
       <thead style="position:sticky;top:0;background:var(--bg3);">
         <tr>
-          <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Produto na NF</th>
-          <th style="padding:8px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Item na Base</th>
-          <th style="padding:8px 10px;text-align:right;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Valor NF</th>
-          <th style="padding:8px 10px;text-align:center;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Ação</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Produto na NF</th>
+          <th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Item na Base</th>
+          <th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Valor NF</th>
+          <th style="padding:7px 10px;text-align:center;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Status</th>
         </tr>
       </thead>
       <tbody>`;
 
   resultado.forEach((item, i) => {
-    const bg    = i%2===0?'var(--bg2)':'var(--bg3)';
-    const badge = item.acao==='atualizar'
-      ? `<span style="background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe;font-size:10px;padding:2px 7px;border-radius:20px;">↻ atualizar</span>`
-      : `<span style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;font-size:10px;padding:2px 7px;border-radius:20px;">＋ adicionar</span>`;
+    const bg = item.bloqueado ? '#fffbeb' : i%2===0?'var(--bg2)':'var(--bg3)';
+
+    let badge;
+    if(item.bloqueado) {
+      badge = `<span title="${item.motivoBloqueio}" style="background:#fef9c3;color:#a16207;border:1px solid #fde047;font-size:10px;padding:2px 7px;border-radius:20px;cursor:help;">🔒 bloqueado</span>`;
+    } else if(item.acao==='atualizar') {
+      const seta = item.vUnCom > (item.custoAnterior||0) ? '▲' : '▼';
+      const cor  = item.vUnCom > (item.custoAnterior||0) ? '#dc2626' : '#16a34a';
+      badge = `<span style="background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe;font-size:10px;padding:2px 7px;border-radius:20px;">↻ atualizar <span style="color:${cor}">${seta}</span></span>`;
+    } else {
+      badge = `<span style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;font-size:10px;padding:2px 7px;border-radius:20px;">＋ novo</span>`;
+    }
 
     const baseInfo = item.matEncontrado
       ? `<span style="font-size:11px;color:var(--text2);">${item.matEncontrado.descricao}</span>
-         <br><span style="font-size:10px;color:var(--text4);">Atual: ${fmt(item.matEncontrado.custo)}</span>`
+         <br><span style="font-size:10px;color:var(--text4);">Atual: ${fmt(item.matEncontrado.custo)}
+         &nbsp;·&nbsp;
+         <span style="background:${item.metodo==='cProd'?'#dcfce7':'#eff6ff'};color:${item.metodo==='cProd'?'#15803d':'#1e6fd9'};padding:1px 5px;border-radius:3px;">
+           ${item.metodo==='cProd'?'🔑 por cProd':'~ por nome'}
+         </span></span>
+         ${item.bloqueado?`<br><span style="font-size:10px;color:#a16207;">⚠️ ${item.motivoBloqueio}</span>`:''}`
       : `<span style="font-size:11px;color:var(--text3);font-style:italic;">Novo item</span>`;
 
     html += `<tr style="background:${bg};">
-      <td style="padding:8px 10px;border-bottom:1px solid var(--border);">
+      <td style="padding:7px 10px;border-bottom:1px solid var(--border);">
         <div style="font-weight:500;color:var(--text);">${item.xProd}</div>
-        <div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);">Cód: ${item.cProd} · ${item.qCom} ${item.unCom}</div>
+        <div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);">
+          ${item.cProd?`cProd: <strong>${item.cProd}</strong> &nbsp;·&nbsp;`:''}${item.qCom} ${item.unCom}
+        </div>
       </td>
-      <td style="padding:8px 10px;border-bottom:1px solid var(--border);">${baseInfo}</td>
-      <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--accent);font-family:var(--fonte-cond);">${fmt(item.vUnCom)}</td>
-      <td style="padding:8px 10px;border-bottom:1px solid var(--border);text-align:center;">${badge}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid var(--border);">${baseInfo}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--accent);font-family:var(--fonte-cond);">${fmt(item.vUnCom)}</td>
+      <td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:center;">${badge}</td>
     </tr>`;
   });
 
   html += `</tbody></table></div>
     <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:var(--fonte-cond);">
-      ⚠️ Revise antes de confirmar. O histórico de preços será registrado automaticamente.
+      🔒 Itens bloqueados não serão alterados. Passe o mouse sobre o badge para ver o motivo.
     </p>`;
 
   document.getElementById('xml-resultado-conteudo').innerHTML = html;
-  document.getElementById('btn-xml-confirmar').style.display = resultado.length ? 'inline-flex' : 'none';
+  // Só mostra botão confirmar se houver algo para fazer
+  const temAlgo = atualizados.length + novos.length > 0;
+  document.getElementById('btn-xml-confirmar').style.display = temAlgo ? 'inline-flex' : 'none';
   abrirModal('modal-xml-resultado');
 }
 
 function confirmarImportacaoXML() {
   if(!_xmlPendente?.length) return;
-  let atualizados = 0, adicionados = 0;
+  let atualizados = 0, adicionados = 0, pulados = 0;
 
   _xmlPendente.forEach(item => {
+    // Pula itens bloqueados (NF mais antiga)
+    if(item.bloqueado) { pulados++; return; }
+
     if(item.acao === 'atualizar' && item.matEncontrado) {
       const mat = state.materiais.find(m=>m.id===item.matEncontrado.id);
-      if(mat && mat.custo !== item.vUnCom) {
-        registrarHistoricoPreco(mat.id, mat.custo, item.vUnCom);
-        mat.custo = item.vUnCom;
-        atualizados++;
+      if(mat) {
+        if(mat.custo !== item.vUnCom) {
+          registrarHistoricoPreco(mat.id, mat.custo, item.vUnCom);
+          mat.custo = item.vUnCom;
+          atualizados++;
+        }
+        // Salva o cProd do fornecedor para cruzamento futuro automático
+        if(item.cProd && !mat.cProd) mat.cProd = item.cProd;
       }
     } else if(item.acao === 'adicionar') {
-      // Determina categoria pelo NCM ou por palavra-chave
-      const cat = inferirCategoria(item.xProd, item.ncm);
+      const cat    = inferirCategoria(item.xProd, item.ncm);
       const prefix = { Câmeras:'CAM',Gravadores:'NVR',Armazenamento:'HD','Switches/Rede':'SW',
         Cabeamento:'CAB','Controle de Acesso':'FAC','Módulo Guarita':'GUA','Cerca Elétrica':'CER',
         Energia:'ENE',Infraestrutura:'INF',Displays:'DIS',Computadores:'COM',
         'Kit Instalação':'KIT','Mão de Obra':'MOB',Outros:'OTH' }[cat]||'OTH';
       const newId = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
       state.materiais.push({
-        id: newId,
-        categoria: cat,
+        id: newId, categoria: cat,
         descricao: item.xProd,
-        unidade: item.unCom.toLowerCase() || 'un',
+        unidade: item.unCom.toLowerCase()||'un',
         custo: item.vUnCom,
       });
       adicionados++;
@@ -3513,7 +3610,7 @@ function confirmarImportacaoXML() {
   _xmlPendente = null;
   fecharModal('modal-xml-resultado');
   renderMateriais();
-  alert(`✅ Importação concluída!\n\n${atualizados} item(s) atualizado(s)\n${adicionados} item(s) adicionado(s)\n\nHistórico de preços registrado.`);
+  alert(`✅ Importação concluída!\n\n${atualizados} item(s) atualizado(s)\n${adicionados} item(s) adicionado(s)${pulados?`\n🔒 ${pulados} item(s) bloqueado(s) — NF mais antiga que último preço`:''}\n\nHistórico de preços registrado.`);
 }
 
 function inferirCategoria(nome, ncm) {

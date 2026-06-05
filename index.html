@@ -1385,6 +1385,9 @@ function salvarState() {
   localStorage.setItem('sp8_orcamentos', JSON.stringify(state.orcamentos));
   // Salva fotos separadamente (não vão para o Gist)
   salvarFotosLocal(state.orcamentos);
+  // Incrementa versão a cada alteração e atualiza display
+  incrementarVersao();
+  mostrarVersao();
 }
 
 function getMaterial(id) { return state.materiais.find(m=>m.id===id); }
@@ -2141,9 +2144,7 @@ function salvarOrcamento() {
   state.editandoId = orc.id;
   state._novoNumero = null;
   salvarState();
-  const novaVersao = incrementarVersao();
-  mostrarVersao();
-  alert(`✅ Orçamento #${numero} salvo com sucesso! (v${novaVersao})`);
+  alert(`✅ Orçamento #${numero} salvo! (v${obterVersao()})`);
   // Sobe automaticamente para a nuvem se configurado
   const cfg = carregarConfigGist();
   if(cfg.token && cfg.gistId) {
@@ -3720,14 +3721,10 @@ function confirmarRecalculo() {
   // pois calcTotalVenda sempre busca custo atual da base
   orc.atualizadoEm  = new Date().toISOString();
   orc.recalculadoEm = new Date().toLocaleString('pt-BR');
-
   salvarState();
-  const novaVersao = incrementarVersao();
-  mostrarVersao();
-
   fecharModal('modal-recalcular');
   renderDashboard();
-  alert(`✅ Orçamento recalculado com preços atuais! (v${novaVersao})\n\nO novo total já está refletido no dashboard.\nAbra o orçamento para gerar nova proposta.`);
+  alert(`✅ Orçamento recalculado! (v${obterVersao()})\n\nAbra o orçamento para gerar nova proposta.`);
 }
 
 // ==================== DESCONTO ====================

@@ -2986,23 +2986,30 @@ async function carregarDoGist(cfg, silencioso) {
   const dadosNuvem  = JSON.parse(arquivo.content);
   const totalLocal  = state.orcamentos.length;
   const totalNuvem  = dadosNuvem.sp8_orcamentos?.length||0;
+  const matLocal    = state.materiais.length;
+  const matNuvem    = dadosNuvem.sp8_materiais?.length||0;
 
   const tsNuvem = new Date(dadosNuvem.sp8_exportado_em||0).getTime()||0;
   const tsLocal = new Date(localStorage.getItem('sp8_gist_last_sync')||0).getTime()||0;
 
-  // Se local está vazio — baixa automaticamente sem perguntar
-  if(totalLocal === 0 && totalNuvem > 0) {
+  // Computador novo / sem dados — sempre baixa da nuvem sem perguntar
+  const localVazio = totalLocal === 0 && (matLocal <= 63); // 63 = base inicial padrão
+  if(localVazio && totalNuvem > 0) {
     await aplicarDadosNuvem(dadosNuvem, silencioso);
     return;
   }
 
-  // Se nuvem é mais recente que o último sync local
+  // Nunca sincronizou neste computador — baixa da nuvem
+  if(tsLocal === 0 && tsNuvem > 0) {
+    await aplicarDadosNuvem(dadosNuvem, silencioso);
+    return;
+  }
+
+  // Nuvem é mais recente que o último sync local
   if(tsNuvem > tsLocal) {
     if(silencioso) {
-      // Ao abrir automaticamente — baixa sem perguntar se nuvem for mais nova
       await aplicarDadosNuvem(dadosNuvem, true);
     } else {
-      // Acionado manualmente — pergunta
       const escolha = confirm(
         `☁️ A nuvem tem dados mais recentes!\n\n` +
         `Nuvem: ${totalNuvem} orçamento(s) · ${dadosNuvem.sp8_exportado_em?.slice(0,10)||'?'}\n` +
@@ -3017,8 +3024,8 @@ async function carregarDoGist(cfg, silencioso) {
         alert(`✅ Dados locais enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
       }
     }
-  } else if(tsLocal === 0 || totalLocal > totalNuvem) {
-    // Local nunca sincronizou ou tem mais dados — sobe para nuvem
+  } else if(totalLocal > totalNuvem) {
+    // Local tem mais dados — sobe para nuvem
     await salvarNoGist(cfg);
     if(!silencioso) alert(`✅ Dados enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
   } else {

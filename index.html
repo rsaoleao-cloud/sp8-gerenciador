@@ -2917,6 +2917,15 @@ async function sincronizarGist() {
 }
 
 async function criarGist(cfg) {
+  // Avisa antes de criar para evitar criar duplicado acidentalmente
+  const confirmar = confirm(
+    `⚠️ Atenção!\n\n` +
+    `Isso vai criar um NOVO Gist do zero.\n\n` +
+    `Se você já tem dados em outro computador, cancele e informe o ID do Gist existente no campo ⚙️.\n\n` +
+    `Deseja criar um novo Gist?`
+  );
+  if(!confirmar) { atualizarStatusGist('off'); return; }
+
   const payload = montarPayloadNuvem(); // sem fotos
   const res = await fetch('https://api.github.com/gists', {
     method: 'POST',

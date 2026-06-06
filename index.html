@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>SP8 Tecnologia — Gerenciador v2.0</title>
+<title>SP8 Tecnologia — Gerenciador de Orçamentos</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -451,60 +451,7 @@
     50% { opacity:.4; transform:scale(1.3); }
   }
 
-  /* FOTOS */
-  .btn-foto {
-    background: rgba(30,110,217,.08); border: 1px solid rgba(30,110,217,.3);
-    color: var(--accent); font-size: 11px; font-weight: 600;
-    padding: 3px 10px; border-radius: 4px; cursor: pointer;
-    transition: all .12s; white-space: nowrap; margin-left: 4px;
-  }
-  .btn-foto:hover { background: rgba(30,110,217,.15); }
-  .badge-foto {
-    display: inline-flex; align-items: center; justify-content: center;
-    background: var(--accent); color: #fff; border-radius: 20px;
-    font-size: 9px; font-weight: 700; width: 14px; height: 14px;
-    vertical-align: middle; margin-left: 2px;
-  }
-  .btn-foto-add {
-    background: transparent; border: 1px dashed var(--border2);
-    color: var(--text3); font-size: 11px; padding: 4px 10px;
-    border-radius: 6px; cursor: pointer; transition: all .12s;
-    display: flex; align-items: center; gap: 4px;
-  }
-  .btn-foto-add:hover { border-color: var(--accent); color: var(--accent); background: var(--azul-muted); }
-
-  /* GALERIA */
-  .galeria-overlay {
-    position: fixed; inset: 0; background: rgba(0,0,0,.92); z-index: 300;
-    display: none; align-items: center; justify-content: center;
-  }
-  .galeria-overlay.aberta { display: flex; }
-  .galeria-main { position: relative; max-width: 90vw; max-height: 85vh; }
-  .galeria-main img { max-width: 90vw; max-height: 78vh; border-radius: 10px; object-fit: contain; display: block; }
-  .galeria-info { text-align: center; color: #ccc; font-size: 12px; margin-top: 10px; font-family: var(--fonte-cond); }
-  .galeria-nav {
-    position: absolute; top: 50%; transform: translateY(-50%);
-    background: rgba(255,255,255,.15); border: none; color: #fff;
-    font-size: 22px; width: 44px; height: 44px; border-radius: 50%;
-    cursor: pointer; transition: background .15s; display: flex; align-items: center; justify-content: center;
-  }
-  .galeria-nav:hover { background: rgba(255,255,255,.3); }
-  .galeria-nav.prev { left: -56px; }
-  .galeria-nav.next { right: -56px; }
-  .galeria-fechar {
-    position: fixed; top: 20px; right: 24px; background: rgba(255,255,255,.15);
-    border: none; color: #fff; font-size: 20px; width: 40px; height: 40px;
-    border-radius: 50%; cursor: pointer; z-index: 301;
-    display: flex; align-items: center; justify-content: center;
-  }
-  .galeria-fechar:hover { background: rgba(255,255,255,.3); }
-  .galeria-thumbs { display: flex; gap: 8px; justify-content: center; margin-top: 12px; flex-wrap: wrap; }
-  .galeria-thumb {
-    width: 48px; height: 36px; object-fit: cover; border-radius: 4px;
-    border: 2px solid transparent; cursor: pointer; opacity: .6; transition: all .15s;
-  }
-  .galeria-thumb.ativa { border-color: var(--accent); opacity: 1; }
-  .galeria-thumb:hover { opacity: 1; }
+  /* DRAG & DROP REORDENAR ITENS */
   .drag-handle {
     cursor: grab;
     color: var(--text4);
@@ -544,9 +491,8 @@
   .bm-tabela tbody tr:hover .td-id { color:var(--accent); }
 
   @media print {
-    body > *:not(#escopo-print):not(#pdf-fotos-print) { display:none !important; }
+    body > *:not(#escopo-print) { display:none !important; }
     #escopo-print { display:block !important; }
-    #pdf-fotos-print { display:block !important; }
     #escopo-print-conteudo {
       font-family: Arial, sans-serif;
       font-size: 11pt;
@@ -561,37 +507,7 @@
     .ep-item::before { content:'• '; font-weight:700; }
     .ep-subitem { margin:1pt 0 1pt 26pt; font-size:10pt; color:#444; }
     .ep-subitem::before { content:'└  '; color:#888; }
-
-    /* PDF COM FOTOS */
-    #pdf-fotos-print { font-family:Arial,sans-serif; font-size:10pt; color:#000; }
-    .pf-capa { text-align:center; padding:40pt 0 30pt; border-bottom:2pt solid #1E6FD9; margin-bottom:24pt; }
-    .pf-capa h1 { font-size:20pt; font-weight:700; color:#1E6FD9; margin:0 0 6pt; }
-    .pf-capa h2 { font-size:13pt; font-weight:400; color:#333; margin:0 0 4pt; }
-    .pf-capa p  { font-size:9pt; color:#666; margin:0; }
-    .pf-fase { margin-bottom:20pt; page-break-inside:avoid; }
-    .pf-fase-titulo {
-      font-size:11pt; font-weight:700; color:#fff;
-      background:#1E6FD9; padding:5pt 10pt;
-      border-radius:4pt; margin-bottom:10pt;
-      text-transform:uppercase; letter-spacing:.5pt;
-    }
-    .pf-item { margin-bottom:14pt; page-break-inside:avoid; border:1pt solid #d0dce8; border-radius:4pt; overflow:hidden; }
-    .pf-item-header {
-      background:#f0f4f8; padding:6pt 10pt;
-      border-bottom:1pt solid #d0dce8;
-      display:flex; justify-content:space-between; align-items:center;
-    }
-    .pf-item-nome { font-size:10pt; font-weight:700; color:#1a2b3c; }
-    .pf-item-meta { font-size:8pt; color:#666; }
-    .pf-item-body { padding:8pt 10pt; }
-    .pf-subitens { font-size:9pt; color:#475569; margin-bottom:6pt; }
-    .pf-subitens span { display:inline-block; background:#eff6ff; border:1pt solid #bfdbfe; border-radius:3pt; padding:1pt 6pt; margin:2pt 3pt 2pt 0; color:#1e6fd9; }
-    .pf-fotos { display:flex; flex-wrap:wrap; gap:8pt; margin-top:6pt; }
-    .pf-foto-wrap { position:relative; }
-    .pf-foto { width:160pt; height:120pt; object-fit:cover; border-radius:4pt; border:1pt solid #d0dce8; display:block; }
-    .pf-foto-label { font-size:7.5pt; color:#666; text-align:center; margin-top:2pt; max-width:160pt; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-    .pf-rodape { margin-top:20pt; padding-top:10pt; border-top:1pt solid #d0dce8; text-align:center; font-size:8pt; color:#888; }
-    @page { margin: 1.5cm 2cm; size: A4; }
+    @page { margin: 2cm 2.5cm; size: A4; }
   }
   @media (max-width:768px) {
     .view { padding:16px; }
@@ -603,30 +519,7 @@
   ::-webkit-scrollbar-track{background:var(--bg2)}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
-<!-- Firebase SDK — carregado de forma assíncrona para não bloquear o app -->
-<script>
-(function() {
-  function carregarFirebase() {
-    var s1 = document.createElement('script');
-    s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
-    s1.onload = function() {
-      var s2 = document.createElement('script');
-      s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js';
-      s2.onload = function() {
-        // Firebase pronto — inicializa se já tiver configuração salva
-        if(typeof fbIniciarAoAbrir === 'function') fbIniciarAoAbrir();
-      };
-      document.head.appendChild(s2);
-    };
-    document.head.appendChild(s1);
-  }
-  if(document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', carregarFirebase);
-  } else {
-    carregarFirebase();
-  }
-})();
-</script>
+</head>
 <body>
 
 <div class="topbar">
@@ -645,57 +538,33 @@
     <button class="nav-btn" onclick="irPara('novo')">+ Novo Orçamento</button>
     <button class="nav-btn" onclick="irPara('materiais')">Base de Materiais</button>
     <div style="width:1px;background:var(--border);margin:10px 4px;"></div>
-    <button class="nav-btn" onclick="exportarDados()" title="Exportar backup JSON local">📤 Exportar</button>
-    <button class="nav-btn" onclick="document.getElementById('input-importar').click()" title="Importar backup JSON local">📥 Importar</button>
+    <button class="nav-btn" onclick="exportarDados()" title="Exportar backup JSON">📤 Exportar</button>
+    <button class="nav-btn" onclick="document.getElementById('input-importar').click()" title="Importar backup JSON">📥 Importar</button>
     <input type="file" id="input-importar" accept=".json" style="display:none;" onchange="importarDados(this)">
     <div style="width:1px;background:var(--border);margin:10px 4px;"></div>
-    <button class="nav-btn" id="btn-fb-sync" onclick="fbSincronizar()" title="Sincronizar com Firebase">
-      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;margin-right:5px;transition:background .3s;"></span>
-      <span id="fb-label">☁ Nuvem</span>
-    </button>
-    <button class="nav-btn" onclick="abrirConfigFB()" title="Configurar Firebase" style="padding:7px 10px;">⚙️</button>
+    <button class="nav-btn" id="btn-fb-sync" onclick="fbSincronizar()" title="Sincronizar com Firebase">      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;margin-right:5px;transition:background .3s;"></span>      <span id="fb-label">&#9729; Nuvem</span>    </button>
+    <button class="nav-btn" onclick="abrirConfigFB()" title="Configurar Firebase" style="padding:7px 10px;">&#9881;&#65039;</button>
   </nav>
 </div>
 
 <!-- ===================== DASHBOARD ===================== -->
 <div id="view-dashboard" class="view ativo">
-  <div class="dash-header" style="display:flex;align-items:flex-start;justify-content:space-between;flex-wrap:wrap;gap:12px;">
-    <div>
-      <h1>GERENCIADOR DE PROJETOS</h1>
-      <p>SP8 Tecnologia · Segurança Eletrônica para Condomínios</p>
-    </div>
-    <button class="btn btn-primary" onclick="irPara('novo')" style="margin-top:4px;">+ Novo Orçamento</button>
+  <div class="dash-header">
+    <h1>GERENCIADOR DE PROJETOS</h1>
+    <p>SP8 Tecnologia · Segurança Eletrônica para Condomínios</p>
   </div>
-
-  <!-- Cards de stats -->
   <div class="cards-grid" id="cards-stats"></div>
-
-  <!-- Funil pipeline -->
-  <div id="funil-pipeline" style="margin-bottom:24px;"></div>
-
-  <!-- Busca + lista -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;gap:12px;flex-wrap:wrap;">
-    <h2 class="orcamentos-recentes" style="margin:0;">ORÇAMENTOS</h2>
-    <div style="display:flex;gap:8px;align-items:center;flex:1;max-width:360px;">
-      <input type="text" id="dash-busca" placeholder="🔍 Buscar por condomínio ou síndico..."
-        oninput="renderDashboard()"
-        style="flex:1;background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--fonte);font-size:13px;padding:7px 12px;outline:none;">
-      <select id="dash-filtro-status" onchange="renderDashboard()"
-        style="background:var(--bg2);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--fonte);font-size:12px;padding:7px 10px;outline:none;">
-        <option value="">Todos</option>
-        <option value="rascunho">Rascunho</option>
-        <option value="enviado">Enviado</option>
-        <option value="aprovado">Aprovado</option>
-        <option value="perdido">Perdido</option>
-      </select>
+  <div class="orcamentos-recentes">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <h2>ORÇAMENTOS</h2>
+      <button class="btn btn-primary" onclick="irPara('novo')">+ Novo Orçamento</button>
     </div>
-  </div>
-
-  <div class="lista-orc" id="lista-orcamentos">
-    <div class="empty-state">
-      <div class="ei">📋</div>
-      <h3>Nenhum orçamento ainda</h3>
-      <p>Clique em "+ Novo Orçamento" para começar</p>
+    <div class="lista-orc" id="lista-orcamentos">
+      <div class="empty-state">
+        <div class="ei">📋</div>
+        <h3>Nenhum orçamento ainda</h3>
+        <p>Clique em "+ Novo Orçamento" para começar</p>
+      </div>
     </div>
   </div>
 </div>
@@ -749,14 +618,6 @@
       <label>Parcelas (pagamento)</label>
       <input type="number" id="f-parcelas" value="12">
     </div>
-    <div class="campo">
-      <label>Próximo Passo</label>
-      <input type="text" id="f-proximo" placeholder="Ex: Reunião condôminos em 15/07">
-    </div>
-    <div class="campo">
-      <label>Desconto (%)</label>
-      <input type="number" id="f-desconto" value="0" min="0" max="100" step="0.5" oninput="recalcularTudo()">
-    </div>
   </div>
 
   <div class="campo" style="margin-bottom:20px;">
@@ -779,10 +640,7 @@
   <!-- FASES -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
     <span style="font-family:var(--fonte-cond);font-size:18px;font-weight:700;">FASES DO PROJETO</span>
-    <div style="display:flex;gap:8px;">
-      <button class="btn btn-secondary btn-sm" onclick="abrirModalTemplates()">📌 Templates</button>
-      <button class="btn btn-secondary btn-sm" onclick="adicionarFase()">+ Adicionar Fase</button>
-    </div>
+    <button class="btn btn-secondary btn-sm" onclick="adicionarFase()">+ Adicionar Fase</button>
   </div>
   <div class="fases-area" id="fases-container"></div>
 
@@ -803,10 +661,6 @@
       <span class="tl-nome">Total Mão de Obra</span>
       <span class="tl-val" id="t-mob">R$ 0,00</span>
     </div>
-    <div class="total-linha" id="linha-desconto" style="display:none;">
-      <span class="tl-nome" id="t-desc-label">Desconto (0%)</span>
-      <span class="tl-val" style="color:var(--vermelho);" id="t-desconto">- R$ 0,00</span>
-    </div>
     <div class="total-linha destaque">
       <span class="tl-nome">TOTAL GERAL (VENDA)</span>
       <span class="tl-val" id="t-geral">R$ 0,00</span>
@@ -815,37 +669,21 @@
       <span class="tl-nome" id="t-parc-label">Parcelas (12×)</span>
       <span class="tl-val text-azul" id="t-parcela">R$ 0,00</span>
     </div>
-    <div class="total-linha" style="margin-top:8px;padding-top:8px;border-top:1px dashed var(--border);">
-      <span class="tl-nome" style="font-size:11px;">Margem bruta (venda − custo mat)</span>
-      <span class="tl-val" style="font-size:13px;color:var(--verde);" id="t-margem">R$ 0,00</span>
-    </div>
   </div>
 
   <div class="acoes-finais">
     <button class="btn btn-primary" onclick="salvarOrcamento()">💾 Salvar Orçamento</button>
     <button class="btn btn-verde" onclick="gerarEscopo()">📄 Gerar Escopo (sem valores)</button>
     <button class="btn btn-verde" onclick="gerarOrcamentoTexto()">💰 Gerar Orçamento (com valores)</button>
-    <button class="btn btn-verde" onclick="gerarPDFcomFotos('fotos')">🖼️ PDF Visita (fotos)</button>
-    <button class="btn btn-verde" onclick="gerarPDFcomFotos('completo')">📋 PDF Completo (orç. + fotos)</button>
-    <button class="btn btn-secondary" onclick="exportarExcel()">📊 Exportar Excel</button>
-    <button class="btn btn-secondary" onclick="exportarMapaCameras()">📍 Mapa de Câmeras</button>
-    <button class="btn btn-secondary" onclick="abrirGerarContrato()">📝 Gerar Contrato</button>
-    <button class="btn btn-secondary" onclick="abrirApresentacao()">🖥️ Apresentação</button>
     <button class="btn btn-secondary" onclick="irPara('dashboard')">← Voltar</button>
   </div>
-
-  <!-- Obs por fase é renderizada dentro de cada fase -->
 </div>
 
 <!-- ===================== BASE DE MATERIAIS ===================== -->
 <div id="view-materiais" class="view">
   <div class="form-header">
     <h1>BASE DE MATERIAIS</h1>
-    <div class="flex gap-8">
-      <button class="btn btn-secondary" onclick="document.getElementById('input-xml-nf').click()" title="Importar XML de Nota Fiscal">📄 Importar NF-e XML</button>
-      <input type="file" id="input-xml-nf" accept=".xml" style="display:none;" onchange="importarXMLNota(this)">
-      <button class="btn btn-primary" onclick="abrirModalMaterial(null)">+ Novo Item</button>
-    </div>
+    <button class="btn btn-primary" onclick="abrirModalMaterial(null)">+ Novo Item</button>
   </div>
 
   <!-- Toolbar filtros -->
@@ -898,20 +736,11 @@
           </select>
         </div>
         <div class="campo"><label>Custo (R$)</label><input type="number" id="mm-custo" step="0.01" min="0" placeholder="0,00"></div>
-        <div class="campo"><label>Código Interno</label><input type="text" id="mm-cod" placeholder="AUTO"></div>
-      </div>
-      <!-- Campo cProd do fornecedor -->
-      <div class="campo">
-        <label>Código do Fornecedor (cProd da NF-e)</label>
-        <input type="text" id="mm-cprod" placeholder="Ex: 4564700 — usado para cruzar com XML de NF automaticamente">
-        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-top:3px;display:block;">
-          💡 Preencha após a primeira importação de NF. Nas próximas o sistema identificará automaticamente.
-        </span>
+        <div class="campo"><label>Código</label><input type="text" id="mm-cod" placeholder="AUTO"></div>
       </div>
     </div>
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="fecharModal('modal-material')">Cancelar</button>
-      <button class="btn btn-secondary btn-sm" id="btn-historico-mat" onclick="verHistoricoPreco(document.getElementById('mm-id').value)" style="display:none;" title="Ver histórico de alterações de preço">📈 Histórico</button>
       <button class="btn btn-danger btn-sm" id="btn-excluir-mat" onclick="excluirMaterial()" style="display:none;">Excluir</button>
       <button class="btn btn-primary" onclick="salvarMaterial()">Salvar</button>
     </div>
@@ -959,252 +788,6 @@
       <button class="btn btn-primary" onclick="confirmarItemSeletor()" id="btn-confirmar-item" disabled style="opacity:.4;">
         ✓ Adicionar
       </button>
-    </div>
-  </div>
-</div>
-
-<!-- INPUT OCULTO UPLOAD FOTOS -->
-<input type="file" id="input-foto" accept="image/*" multiple style="display:none;" onchange="processarFotos(this)">
-
-<!-- MODAL ADICIONAR FOTO -->
-<div class="modal-overlay" id="modal-foto-drive">
-  <div class="modal" style="max-width:460px;">
-    <h2>📷 ADICIONAR FOTOS</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--fonte-cond);">
-      Selecione uma ou mais fotos do computador ou celular. As imagens são comprimidas automaticamente.
-    </p>
-
-    <!-- Área de drop -->
-    <div id="drop-zone"
-      style="border:2px dashed var(--border2);border-radius:10px;padding:32px 20px;text-align:center;cursor:pointer;transition:all .15s;background:var(--bg3);"
-      onclick="document.getElementById('input-foto').click()"
-      ondragover="dropZoneOver(event)"
-      ondragleave="dropZoneLeave(event)"
-      ondrop="dropZoneDrop(event)">
-      <div style="font-size:32px;margin-bottom:8px;">🖼️</div>
-      <div style="font-size:14px;font-weight:600;color:var(--text2);">Clique para selecionar fotos</div>
-      <div style="font-size:12px;color:var(--text3);margin-top:4px;">ou arraste os arquivos aqui</div>
-      <div style="font-size:11px;color:var(--text4);margin-top:8px;font-family:var(--fonte-cond);">JPG, PNG, WEBP — múltiplas fotos de uma vez</div>
-    </div>
-
-    <!-- Preview das fotos selecionadas -->
-    <div id="upload-preview" style="display:none;margin-top:14px;">
-      <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:8px;" id="upload-preview-label"></div>
-      <div id="upload-thumbs" style="display:flex;gap:8px;flex-wrap:wrap;"></div>
-    </div>
-
-    <!-- Barra de progresso -->
-    <div id="upload-progress" style="display:none;margin-top:12px;">
-      <div style="font-size:12px;color:var(--text3);margin-bottom:4px;" id="upload-progress-label">Processando...</div>
-      <div style="background:var(--bg4);border-radius:20px;height:6px;overflow:hidden;">
-        <div id="upload-progress-bar" style="background:var(--accent);width:0%;height:100%;border-radius:20px;transition:width .2s;"></div>
-      </div>
-    </div>
-
-    <div class="modal-actions" style="margin-top:16px;">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-foto-drive')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-confirmar-foto" onclick="document.getElementById('input-foto').click()">
-        📁 Selecionar Fotos
-      </button>
-    </div>
-  </div>
-</div>
-
-<!-- GALERIA LIGHTBOX -->
-<div class="galeria-overlay" id="galeria-overlay" onclick="fecharGaleria(event)">
-  <button class="galeria-fechar" onclick="fecharGaleriaForce()">✕</button>
-  <div class="galeria-main" onclick="event.stopPropagation()">
-    <button class="galeria-nav prev" id="gal-prev" onclick="galeriaNav(-1)">‹</button>
-    <img id="gal-img" src="" alt="foto">
-    <button class="galeria-nav next" id="gal-next" onclick="galeriaNav(1)">›</button>
-    <div class="galeria-info" id="gal-info"></div>
-    <div class="galeria-thumbs" id="gal-thumbs"></div>
-  </div>
-</div>
-
-<!-- MODAL CONFIGURAÇÃO FIREBASE -->
-<div class="modal-overlay" id="modal-fb-config">
-  <div class="modal" style="max-width:560px;">
-    <h2>☁️ CONFIGURAÇÃO FIREBASE</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:var(--fonte-cond);">
-      Sincronização em tempo real gratuita. Configure uma vez em cada computador.
-    </p>
-
-    <!-- Guia -->
-    <details id="guia-firebase" style="margin-bottom:16px;">
-      <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:6px 0;">
-        📖 Como criar o projeto Firebase (gratuito, 5 minutos)
-      </summary>
-      <div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
-        <div style="display:flex;flex-direction:column;gap:8px;">
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">1</span>
-            <span>Acesse <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent);">console.firebase.google.com</a> → <strong>Criar um projeto</strong> → Nome: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">SP8 Gerenciador</code> → Desativar Analytics → Criar</span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">2</span>
-            <span>Menu lateral → <strong>Firestore Database</strong> → <strong>Criar banco de dados</strong> → Modo teste → Região <strong>us-east1</strong> → Ativar</span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">3</span>
-            <span>⚙️ <strong>Configurações do projeto</strong> → <strong>Adicionar app</strong> → ícone <strong>&lt;/&gt;</strong> → Nome: SP8 → Registrar</span>
-          </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:#16a34a;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">4</span>
-            <span>Copie os valores do bloco <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">firebaseConfig</code> e cole nos campos abaixo</span>
-          </div>
-        </div>
-      </div>
-    </details>
-
-    <div style="display:flex;flex-direction:column;gap:12px;">
-      <div class="campo">
-        <label>API Key</label>
-        <input type="text" id="fb-apikey" placeholder="AIzaSy...">
-      </div>
-      <div class="campo">
-        <label>Project ID</label>
-        <input type="text" id="fb-projectid" placeholder="sp8-gerenciador">
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
-        💡 Esses dois campos são suficientes. Os demais valores do firebaseConfig são gerados automaticamente.
-      </div>
-    </div>
-
-    <div id="fb-config-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
-
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-fb-config')">Fechar</button>
-      <button class="btn btn-secondary" onclick="fbTestarConexao()">🔍 Testar</button>
-      <button class="btn btn-danger btn-sm" onclick="fbForcarUpload()">⬆️ Forçar Upload</button>
-      <button class="btn btn-primary" onclick="fbSalvarConfig()">💾 Salvar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL RESULTADO IMPORTAÇÃO XML -->
-<div class="modal-overlay" id="modal-xml-resultado">
-  <div class="modal" style="max-width:600px;">
-    <h2>📄 IMPORTAÇÃO NF-e XML</h2>
-    <div id="xml-resultado-conteudo"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-xml-resultado')">Fechar</button>
-      <button class="btn btn-primary" id="btn-xml-confirmar" onclick="confirmarImportacaoXML()" style="display:none;">✓ Aplicar Alterações</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL RECALCULAR ORÇAMENTO -->
-<div class="modal-overlay" id="modal-recalcular">
-  <div class="modal" style="max-width:580px;">
-    <h2>🔄 RECALCULAR ORÇAMENTO</h2>
-    <div id="recalcular-conteudo"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-recalcular')">Cancelar</button>
-      <button class="btn btn-primary" id="btn-recalcular-confirmar" onclick="confirmarRecalculo()">✓ Aplicar Recálculo</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL GERAR CONTRATO -->
-<div class="modal-overlay" id="modal-contrato">
-  <div class="modal" style="max-width:620px;">
-    <h2>📝 GERAR CONTRATO</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:var(--fonte-cond);">
-      Preencha os dados do contratante. Os demais dados serão preenchidos automaticamente com o orçamento.
-    </p>
-    <div style="display:flex;flex-direction:column;gap:14px;">
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
-        <div class="campo">
-          <label>Nome do Condomínio</label>
-          <input type="text" id="ct-nome" placeholder="Ex: Condomínio Aplauso Jabaquara">
-        </div>
-        <div class="campo">
-          <label>CNPJ do Condomínio</label>
-          <input type="text" id="ct-cnpj" placeholder="00.000.000/0001-00">
-        </div>
-        <div class="campo">
-          <label>Endereço Completo</label>
-          <input type="text" id="ct-endereco" placeholder="Rua, nº - Bairro - Cidade - UF - CEP">
-        </div>
-        <div class="campo">
-          <label>Nome do Síndico(a)</label>
-          <input type="text" id="ct-sindico" placeholder="Nome completo">
-        </div>
-        <div class="campo">
-          <label>CPF do Síndico(a)</label>
-          <input type="text" id="ct-cpf" placeholder="000.000.000-00">
-        </div>
-        <div class="campo">
-          <label>Cargo</label>
-          <select id="ct-cargo">
-            <option value="Síndico">Síndico</option>
-            <option value="Síndica">Síndica</option>
-            <option value="Administrador">Administrador</option>
-          </select>
-        </div>
-        <div class="campo">
-          <label>Prazo de Instalação (dias úteis)</label>
-          <input type="number" id="ct-prazo" value="180" min="1">
-        </div>
-        <div class="campo">
-          <label>Data do Contrato</label>
-          <input type="date" id="ct-data">
-        </div>
-      </div>
-      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px 14px;font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
-        💡 Valor total, parcelas e itens serão preenchidos automaticamente com os dados do orçamento atual.
-      </div>
-    </div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-contrato')">Cancelar</button>
-      <button class="btn btn-primary" onclick="gerarContrato()">📄 Gerar Contrato .docx</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL TEMPLATES -->
-<div class="modal-overlay" id="modal-templates">
-  <div class="modal" style="max-width:500px;">
-    <h2>📌 TEMPLATES DE FASES</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--fonte-cond);">Salve fases prontas para reutilizar em futuros orçamentos. Clique em 📌 em qualquer fase para salvar.</p>
-    <div id="tpl-lista"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-templates')">Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL APRESENTAÇÃO -->
-<div class="modal-overlay" id="modal-apresentacao">
-  <div class="modal" style="max-width:900px;padding:0;background:#111;border-color:#222;">
-    <div id="apres-slides" style="min-height:500px;"></div>
-    <div style="display:flex;gap:10px;padding:16px;background:#0a0a0a;border-top:1px solid #222;align-items:center;">
-      <button class="btn btn-secondary btn-sm" onclick="apresAnterior()">← Anterior</button>
-      <span id="apres-num" style="font-size:13px;color:#666;flex:1;text-align:center;font-family:var(--fonte-cond);"></span>
-      <button class="btn btn-secondary btn-sm" onclick="apresPróximo()">Próximo →</button>
-      <button class="btn btn-danger btn-sm" onclick="fecharModal('modal-apresentacao')">✕ Fechar</button>
-    </div>
-  </div>
-</div>
-
-<!-- MODAL COMPARATIVO -->
-<div class="modal-overlay" id="modal-comparativo">
-  <div class="modal" style="max-width:700px;">
-    <h2>COMPARAR ORÇAMENTOS</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--fonte-cond);">Selecione dois orçamentos para comparar lado a lado.</p>
-    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;">
-      <div class="campo"><label>Orçamento A</label>
-        <select id="comp-a" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--fonte);font-size:13px;padding:8px;outline:none;"></select>
-      </div>
-      <div class="campo"><label>Orçamento B</label>
-        <select id="comp-b" style="background:var(--bg3);border:1px solid var(--border2);border-radius:8px;color:var(--text);font-family:var(--fonte);font-size:13px;padding:8px;outline:none;"></select>
-      </div>
-    </div>
-    <div id="comp-resultado"></div>
-    <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-comparativo')">Fechar</button>
-      <button class="btn btn-primary" onclick="executarComparativo()">Comparar</button>
     </div>
   </div>
 </div>
@@ -1293,11 +876,6 @@
 <!-- ÁREA DE IMPRESSÃO DO ESCOPO (oculta na tela, visível no print) -->
 <div id="escopo-print" style="display:none;">
   <div id="escopo-print-conteudo"></div>
-</div>
-
-<!-- CONTAINER PDF COM FOTOS (oculto na tela, visível no print) -->
-<div id="pdf-fotos-print" style="display:none;">
-  <div id="pdf-fotos-conteudo"></div>
 </div>
 
 <script>
@@ -1397,11 +975,7 @@ function carregarState() {
 function salvarState() {
   localStorage.setItem('sp8_materiais', JSON.stringify(state.materiais));
   localStorage.setItem('sp8_orcamentos', JSON.stringify(state.orcamentos));
-  // Salva fotos separadamente (não vão para o Gist)
-  salvarFotosLocal(state.orcamentos);
-  // Incrementa versão a cada alteração e atualiza display
-  incrementarVersao();
-  mostrarVersao();
+  if(typeof fbAutoSalvar === 'function') fbAutoSalvar();
 }
 
 function getMaterial(id) { return state.materiais.find(m=>m.id===id); }
@@ -1428,110 +1002,35 @@ function irPara(view) {
 // ==================== DASHBOARD ====================
 function renderDashboard() {
   const orcs = state.orcamentos;
-  const q = (document.getElementById('dash-busca')?.value||'').toLowerCase();
-  const filtroStatus = document.getElementById('dash-filtro-status')?.value||'';
-
   const aprovados = orcs.filter(o=>o.status==='aprovado');
-  const enviados  = orcs.filter(o=>o.status==='enviado');
-  const rascunhos = orcs.filter(o=>o.status==='rascunho');
-  const perdidos  = orcs.filter(o=>o.status==='perdido');
   const totalVenda = aprovados.reduce((s,o)=>s+calcTotalVenda(o),0);
-  const totalMatCusto = aprovados.reduce((s,o)=>s+calcCustoMat(o),0);
-  const margem = totalVenda - totalMatCusto;
 
-  // Stats
   document.getElementById('cards-stats').innerHTML = `
     <div class="card-stat"><div class="label">Total Orçamentos</div><div class="valor azul">${orcs.length}</div></div>
     <div class="card-stat"><div class="label">Aprovados</div><div class="valor verde">${aprovados.length}</div></div>
-    <div class="card-stat"><div class="label">Aguardando</div><div class="valor amarelo">${enviados.length}</div></div>
-    <div class="card-stat"><div class="label">Faturado (aprovados)</div><div class="valor verde" style="font-size:18px;">${fmt(totalVenda)}</div></div>
-    <div class="card-stat"><div class="label">Margem Bruta</div><div class="valor" style="color:var(--verde);font-size:18px;">${fmt(margem)}</div></div>
+    <div class="card-stat"><div class="label">Aguardando</div><div class="valor amarelo">${orcs.filter(o=>o.status==='enviado').length}</div></div>
+    <div class="card-stat"><div class="label">Faturado (aprovados)</div><div class="valor verde" style="font-size:20px;">${fmt(totalVenda)}</div></div>
+    <div class="card-stat"><div class="label">Itens na Base</div><div class="valor">${state.materiais.length}</div></div>
   `;
 
-  // Funil pipeline
-  const total = orcs.length||1;
-  const etapas = [
-    { label:'Rascunho', n:rascunhos.length, cor:'var(--text4)', status:'rascunho' },
-    { label:'Enviado',  n:enviados.length,  cor:'var(--accent)', status:'enviado' },
-    { label:'Aprovado', n:aprovados.length, cor:'var(--verde)',  status:'aprovado' },
-    { label:'Perdido',  n:perdidos.length,  cor:'var(--vermelho)', status:'perdido' },
-  ];
-  document.getElementById('funil-pipeline').innerHTML = `
-    <div style="background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:16px 20px;box-shadow:var(--shadow);">
-      <div style="font-size:10px;font-weight:600;color:var(--text3);text-transform:uppercase;letter-spacing:.8px;margin-bottom:12px;font-family:var(--fonte-cond);">Pipeline de Vendas</div>
-      <div style="display:flex;gap:8px;align-items:center;">
-        ${etapas.map((e,i)=>`
-          <div style="flex:1;cursor:pointer;" onclick="document.getElementById('dash-filtro-status').value='${e.status}';renderDashboard()">
-            <div style="height:8px;background:${e.cor};border-radius:4px;opacity:${e.n?1:.2};"></div>
-            <div style="display:flex;justify-content:space-between;margin-top:5px;">
-              <span style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">${e.label}</span>
-              <span style="font-size:11px;font-weight:700;color:${e.cor};font-family:var(--fonte-cond);">${e.n}</span>
-            </div>
-          </div>
-          ${i<etapas.length-1?'<span style="color:var(--border2);font-size:16px;">›</span>':''}
-        `).join('')}
-        <div style="margin-left:8px;padding-left:12px;border-left:1px solid var(--border);">
-          <div style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">Taxa aprovação</div>
-          <div style="font-size:16px;font-weight:700;color:var(--accent);font-family:var(--fonte-cond);">${orcs.length?Math.round(aprovados.length/orcs.length*100):0}%</div>
-        </div>
-      </div>
-    </div>`;
-
-  // Lista filtrada
-  let lista = [...orcs].reverse();
-  if(q) lista = lista.filter(o=>(o.nome||'').toLowerCase().includes(q)||(o.sindico||'').toLowerCase().includes(q));
-  if(filtroStatus) lista = lista.filter(o=>(o.status||'rascunho')===filtroStatus);
-
-  const el = document.getElementById('lista-orcamentos');
-  if(!lista.length) {
-    el.innerHTML = `<div class="empty-state"><div class="ei">🔍</div><h3>Nenhum resultado</h3><p>Tente outros filtros</p></div>`;
+  const lista = document.getElementById('lista-orcamentos');
+  if(!orcs.length) {
+    lista.innerHTML = `<div class="empty-state"><div class="ei">📋</div><h3>Nenhum orçamento ainda</h3><p>Clique em "+ Novo Orçamento" para começar</p></div>`;
     return;
   }
-  const hoje = new Date(); hoje.setHours(0,0,0,0);
-  el.innerHTML = lista.map(o=>{
-    const totalV = calcTotalVenda(o);
-    const num = o.numero ? `<span style="font-family:var(--fonte-cond);font-size:10px;color:var(--text4);margin-right:6px;">#${o.numero}</span>` : '';
-    // Alerta de validade
-    let alertaVal = '';
-    if(o.data && o.validade && o.status!=='aprovado' && o.status!=='perdido') {
-      const dataOrc = new Date(o.data);
-      const expira = new Date(dataOrc); expira.setDate(expira.getDate()+(parseInt(o.validade)||30));
-      const diff = Math.ceil((expira-hoje)/(1000*60*60*24));
-      if(diff < 0) alertaVal = `<span style="font-size:10px;color:var(--vermelho);font-family:var(--fonte-cond);">⚠️ Vencido há ${Math.abs(diff)}d</span>`;
-      else if(diff <= 7) alertaVal = `<span style="font-size:10px;color:var(--amarelo);font-family:var(--fonte-cond);">⏰ Vence em ${diff}d</span>`;
-    }
-    // Próximo passo
-    const prox = o.proximo ? `<div style="font-size:11px;color:var(--accent);margin-top:3px;font-family:var(--fonte-cond);">→ ${o.proximo}</div>` : '';
-    return `
+  lista.innerHTML = [...orcs].reverse().map(o=>`
     <div class="orc-item" onclick="editarOrcamento('${o.id}')">
-      <div style="flex:1;min-width:0;">
-        <div class="orc-nome">${num}${o.nome||'Sem nome'} ${alertaVal}</div>
+      <div>
+        <div class="orc-nome">${o.nome||'Sem nome'}</div>
         <div class="orc-meta">${o.sindico||''} · ${o.data||''} · ${o.fases?.length||0} fase(s)</div>
-        ${prox}
       </div>
-      <div style="display:flex;align-items:center;gap:10px;flex-shrink:0;">
-        <div class="orc-valor">${fmt(totalV)}</div>
+      <div style="display:flex;align-items:center;gap:16px;">
+        <div class="orc-valor">${fmt(calcTotalVenda(o))}</div>
         <span class="orc-status status-${o.status||'rascunho'}">${o.status||'rascunho'}</span>
-        <button class="btn btn-secondary btn-xs" title="Duplicar" onclick="event.stopPropagation();duplicarOrcamento('${o.id}')">⧉</button>
-        <button class="btn btn-secondary btn-xs" title="Comparar" onclick="event.stopPropagation();abrirComparativo('${o.id}')">⇆</button>
-        <button class="btn btn-secondary btn-xs" title="Recalcular com preços atuais da base" onclick="event.stopPropagation();recalcularOrcamento('${o.id}')">🔄</button>
         <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();excluirOrcamento('${o.id}')">✕</button>
       </div>
-    </div>`;
-  }).join('');
-}
-
-function calcCustoMat(orc) {
-  if(!orc.fases) return 0;
-  let total = 0;
-  orc.fases.forEach(f=>{
-    (f.itens||[]).forEach(item=>{
-      const mat = state.materiais.find(m=>m.id===item.matId);
-      if(!mat||mat.categoria==='Mão de Obra') return;
-      total += mat.custo*(parseFloat(item.qtd)||0);
-    });
-  });
-  return total;
+    </div>
+  `).join('');
 }
 
 function calcTotalVenda(orc) {
@@ -1560,8 +1059,7 @@ function excluirOrcamento(id) {
 // ==================== FASES ====================
 function novoOrcamento() {
   state.editandoId = null;
-  const num = gerarNumeroOrc();
-  document.getElementById('form-titulo').textContent = `NOVO ORÇAMENTO #${num}`;
+  document.getElementById('form-titulo').textContent = 'NOVO ORÇAMENTO';
   document.getElementById('f-nome').value = '';
   document.getElementById('f-sindico').value = '';
   document.getElementById('f-endereco').value = '';
@@ -1572,9 +1070,6 @@ function novoOrcamento() {
   document.getElementById('f-parcelas').value = 12;
   document.getElementById('f-mult').value = '1.40';
   document.getElementById('f-obs').value = '';
-  document.getElementById('f-proximo').value = '';
-  document.getElementById('f-desconto').value = '0';
-  state._novoNumero = num;
   state.fasesAtivas = [];
   state.nextFaseId = 1;
   renderFases();
@@ -1585,7 +1080,7 @@ function editarOrcamento(id) {
   const orc = state.orcamentos.find(o=>o.id===id);
   if(!orc) return;
   state.editandoId = id;
-  document.getElementById('form-titulo').textContent = `EDITAR ORÇAMENTO${orc.numero?' #'+orc.numero:''}`;
+  document.getElementById('form-titulo').textContent = 'EDITAR ORÇAMENTO';
   document.getElementById('f-nome').value = orc.nome||'';
   document.getElementById('f-sindico').value = orc.sindico||'';
   document.getElementById('f-endereco').value = orc.endereco||'';
@@ -1596,8 +1091,6 @@ function editarOrcamento(id) {
   document.getElementById('f-parcelas').value = orc.parcelas||12;
   document.getElementById('f-mult').value = orc.multiplicador||'1.40';
   document.getElementById('f-obs').value = orc.obs||'';
-  document.getElementById('f-proximo').value = orc.proximo||'';
-  document.getElementById('f-desconto').value = orc.desconto||'0';
   state.fasesAtivas = JSON.parse(JSON.stringify(orc.fases||[]));
   state.nextFaseId = (state.fasesAtivas.length||0)+1;
   irPara('novo');
@@ -1608,8 +1101,9 @@ function editarOrcamento(id) {
 function adicionarFase(nome) {
   const id = 'fase_'+Date.now()+'_'+state.nextFaseId++;
   const nomeFase = nome || `FASE ${state.fasesAtivas.length+1} – DESCRIÇÃO`;
-  state.fasesAtivas.push({ id, nome: nomeFase, itens:[], obs:'' });
+  state.fasesAtivas.push({ id, nome: nomeFase, itens:[] });
   renderFases();
+  // Foca no input do nome da nova fase para editar imediatamente
   setTimeout(()=>{
     const inputs = document.querySelectorAll('.fase-nome-input');
     const ultimo = inputs[inputs.length-1];
@@ -1641,7 +1135,6 @@ function renderFases() {
         </div>
         <div style="display:flex;align-items:center;gap:8px;">
           <span class="fase-total" id="ft-${f.id}">${fmt(calcTotalFase(f))}</span>
-          <button class="btn btn-secondary btn-xs" onclick="event.stopPropagation();salvarTemplate('${f.id}')" title="Salvar como template">📌</button>
           <button class="btn btn-danger btn-xs" onclick="event.stopPropagation();removerFase('${f.id}')">✕</button>
           <span class="text-cinza" style="font-size:18px;">▾</span>
         </div>
@@ -1651,15 +1144,6 @@ function renderFases() {
         <div class="adicionar-item-row">
           <button class="btn btn-primary btn-sm" onclick="abrirSeletor('${f.id}')">+ Adicionar Item da Base</button>
           <button class="btn btn-secondary btn-sm" onclick="adicionarItemManual('${f.id}')">+ Item Manual</button>
-        </div>
-        <!-- Obs por fase -->
-        <div style="margin-top:12px;padding-top:10px;border-top:1px dashed var(--border);">
-          <input type="text" value="${f.obs||''}"
-            placeholder="📝 Observação desta fase (ex: depende de aprovação em assembleia)..."
-            style="width:100%;background:transparent;border:none;border-bottom:1px dashed var(--border2);color:var(--text2);font-family:var(--fonte);font-size:12px;padding:4px 6px;outline:none;caret-color:var(--accent);"
-            onchange="atualizarObsFase('${f.id}',this.value)"
-            onfocus="this.style.borderBottomColor='var(--accent)'"
-            onblur="this.style.borderBottomColor='var(--border2)'">
         </div>
       </div>
     </div>
@@ -1688,7 +1172,6 @@ function renderTabelaFase(fase) {
     const qtd = parseInt(item.qtd)||0;
     const total = venda*qtd;
     const subitens = item.subitens||[];
-    const fotos = item.fotos||[];
     const podeAddSub = qtd >= 2;
 
     rows += `<tr draggable="true"
@@ -1730,29 +1213,9 @@ function renderTabelaFase(fase) {
       <td class="item-total">${fmt(total)}</td>
       <td style="white-space:nowrap;">
         ${podeAddSub?`<button class="btn-add-sub" onclick="adicionarSubitem('${fase.id}',${idx})" title="Adicionar local de instalação">＋ Local</button>`:''}
-        <button class="btn-foto" onclick="abrirUploadFoto('${fase.id}',${idx})" title="Adicionar fotos">📷${fotos.length>0?` <span class="badge-foto">${fotos.length}</span>`:''}</button>
         <button class="btn btn-danger btn-xs" style="margin-left:4px;" onclick="removerItem('${fase.id}',${idx})">✕</button>
       </td>
-    </tr>
-    ${fotos.length>0?`<tr class="subitem-row">
-      <td colspan="6" style="padding:8px 10px 8px 48px !important;">
-        <div style="display:flex;gap:8px;flex-wrap:wrap;align-items:center;">
-          ${fotos.map((f,fi)=>`
-            <div style="position:relative;display:inline-block;">
-              <img src="${f.data}" alt="${f.nome||'foto'}"
-                style="width:64px;height:48px;object-fit:cover;border-radius:6px;border:2px solid var(--border);cursor:pointer;transition:border-color .15s;"
-                onclick="abrirGaleriaFoto('${fase.id}',${idx},${fi})"
-                onmouseover="this.style.borderColor='var(--accent)'"
-                onmouseout="this.style.borderColor='var(--border)'"
-                title="${f.nome||'Ver foto'}">
-              <button onclick="removerFoto('${fase.id}',${idx},${fi})"
-                style="position:absolute;top:-5px;right:-5px;background:var(--vermelho);color:#fff;border:none;border-radius:50%;width:16px;height:16px;font-size:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;font-weight:700;">✕</button>
-            </div>`).join('')}
-          <button class="btn-foto-add" onclick="abrirUploadFoto('${fase.id}',${idx})">＋ foto</button>
-        </div>
-      </td>
-    </tr>`:''}
-`;
+    </tr>`;
 
     // Subitens
     subitens.forEach((sub, si) => {
@@ -2072,6 +1535,7 @@ function recalcularTudo(reRenderFases) {
   const badge = document.getElementById('badge-mult');
   if(badge) badge.textContent = pct+'% markup';
 
+  // Se mudou o markup, re-renderiza as fases para atualizar todos os valores
   if(reRenderFases) { renderFases(); return; }
 
   let totalMatCusto=0, totalMatVenda=0, totalMob=0;
@@ -2092,12 +1556,8 @@ function recalcularTudo(reRenderFases) {
     if(el) el.textContent = fmt(fv+fm);
   });
 
-  const totalBruto = totalMatVenda+totalMob;
-  const descPct = parseFloat(document.getElementById('f-desconto')?.value||0);
-  const descontoVal = totalBruto*(descPct/100);
-  const geral = totalBruto - descontoVal;
+  const geral = totalMatVenda+totalMob;
   const parcelas = parseInt(document.getElementById('f-parcelas')?.value||12);
-  const margem = geral - totalMatCusto;
 
   const tDet = document.getElementById('total-fases-detalhe');
   if(tDet) tDet.innerHTML = detFases.map(d=>`
@@ -2110,15 +1570,6 @@ function recalcularTudo(reRenderFases) {
   set('t-geral', fmt(geral));
   set('t-parc-label', `Parcelas (${parcelas}×)`);
   set('t-parcela', geral>0 ? fmt(geral/parcelas) : 'R$ 0,00');
-  set('t-margem', fmt(margem));
-
-  // Desconto
-  const linhaDesc = document.getElementById('linha-desconto');
-  const labelDesc = document.getElementById('t-desc-label');
-  const valDesc = document.getElementById('t-desconto');
-  if(linhaDesc) linhaDesc.style.display = descPct>0 ? 'flex' : 'none';
-  if(labelDesc) labelDesc.textContent = `Desconto (${descPct}%)`;
-  if(valDesc) valDesc.textContent = `- ${fmt(descontoVal)}`;
 }
 
 // ==================== SALVAR ORÇAMENTO ====================
@@ -2126,13 +1577,8 @@ function salvarOrcamento() {
   const nome = document.getElementById('f-nome').value.trim();
   if(!nome) { alert('Informe o nome do condomínio/cliente.'); return; }
 
-  // Recupera número existente ou gera novo
-  const orcExist = state.editandoId ? state.orcamentos.find(o=>o.id===state.editandoId) : null;
-  const numero = orcExist?.numero || state._novoNumero || gerarNumeroOrc();
-
   const orc = {
     id: state.editandoId || 'ORC_'+Date.now(),
-    numero,
     nome,
     sindico: document.getElementById('f-sindico').value,
     endereco: document.getElementById('f-endereco').value,
@@ -2143,8 +1589,6 @@ function salvarOrcamento() {
     parcelas: document.getElementById('f-parcelas').value,
     multiplicador: document.getElementById('f-mult').value,
     obs: document.getElementById('f-obs').value,
-    proximo: document.getElementById('f-proximo').value,
-    desconto: document.getElementById('f-desconto').value,
     fases: JSON.parse(JSON.stringify(state.fasesAtivas)),
     atualizadoEm: new Date().toISOString(),
   };
@@ -2156,11 +1600,10 @@ function salvarOrcamento() {
     state.orcamentos.push(orc);
   }
   state.editandoId = orc.id;
-  state._novoNumero = null;
   salvarState();
-  alert(`✅ Orçamento #${numero} salvo! (v${obterVersao()})`);
-  // Sobe automaticamente para a nuvem
-  fbAutoSalvar();
+  const novaVersao = incrementarVersao();
+  mostrarVersao();
+  alert(`✅ Orçamento salvo com sucesso! (v${novaVersao})`);
 }
 
 // ==================== GERAR ESCOPO ====================
@@ -2208,191 +1651,7 @@ function gerarEscopo() {
   abrirModal('modal-saida');
 }
 
-function gerarPDFcomFotos(modo) {
-  const nome     = document.getElementById('f-nome').value||'Orçamento';
-  const sindico  = document.getElementById('f-sindico').value||'';
-  const data     = document.getElementById('f-data').value||'';
-  const mult     = parseFloat(document.getElementById('f-mult').value||1.4);
-  const descPct  = parseFloat(document.getElementById('f-desconto')?.value||0);
-  const parcelas = parseInt(document.getElementById('f-parcelas').value||12);
-  const validade = document.getElementById('f-validade').value||30;
-  const obs      = document.getElementById('f-obs').value||'';
-
-  // Conta fotos
-  let totalFotos = 0;
-  state.fasesAtivas.forEach(f => f.itens.forEach(i => { totalFotos += (i.fotos||[]).length; }));
-  if(modo === 'fotos' && !totalFotos) {
-    alert('Nenhuma foto adicionada.\n\nUse o botão 📷 em cada item para adicionar fotos.');
-    return;
-  }
-
-  // Totais
-  let totalBruto = 0;
-  state.fasesAtivas.forEach(f => { totalBruto += calcTotalFase(f); });
-  const descontoVal = totalBruto * (descPct/100);
-  const totalFinal  = totalBruto - descontoVal;
-
-  const tituloDoc = modo === 'completo'
-    ? 'Proposta Comercial com Fotos de Visita'
-    : 'Relatório de Visita Técnica';
-
-  let html = '';
-
-  // ── CAPA ───────────────────────────────────────────────────────────────────
-  html += `<div class="pf-capa">
-    <div style="font-size:8pt;letter-spacing:2pt;color:#1E6FD9;text-transform:uppercase;margin-bottom:8pt;">SP8 Tecnologia</div>
-    <h1>${nome.toUpperCase()}</h1>
-    ${sindico ? `<h2>Att. ${sindico}</h2>` : ''}
-    <p style="margin-top:8pt;font-size:10pt;color:#444;">${tituloDoc}</p>
-    <p style="margin-top:4pt;">${formatarData(data)} &nbsp;·&nbsp; Válida por ${validade} dias</p>
-  </div>`;
-
-  // ── MODO COMPLETO: tabela de orçamento por fase primeiro ────────────────────
-  if(modo === 'completo') {
-    state.fasesAtivas.forEach((f, fi) => {
-      if(!f.itens?.length) return;
-      const totalFase = calcTotalFase(f);
-
-      html += `<div class="pf-fase" style="page-break-inside:avoid;">
-        <div class="pf-fase-titulo">${fi+1}. ${f.nome}
-          <span style="float:right;font-weight:400;">${fmt(totalFase)}</span>
-        </div>
-        <table style="width:100%;border-collapse:collapse;font-size:8.5pt;margin-bottom:4pt;">
-          <thead>
-            <tr style="background:#f0f4f8;">
-              <th style="padding:4pt 6pt;text-align:left;border:1pt solid #d0dce8;color:#475569;">Item</th>
-              <th style="padding:4pt 6pt;text-align:center;border:1pt solid #d0dce8;color:#475569;width:40pt;">Qtd</th>
-              <th style="padding:4pt 6pt;text-align:right;border:1pt solid #d0dce8;color:#475569;width:60pt;">Unit.</th>
-              <th style="padding:4pt 6pt;text-align:right;border:1pt solid #d0dce8;color:#475569;width:70pt;">Total</th>
-            </tr>
-          </thead>
-          <tbody>`;
-
-      f.itens.forEach((item, ii) => {
-        const mat  = state.materiais.find(m=>m.id===item.matId)||{descricao:'?',categoria:'',unidade:'un',custo:0};
-        const isMob= mat.categoria==='Mão de Obra';
-        const venda= isMob ? mat.custo : mat.custo*mult;
-        const qtd  = parseInt(item.qtd)||0;
-        const desc = item.descCustom||mat.descricao;
-        const bg   = ii%2===0?'#ffffff':'#f8faff';
-        const subs = (item.subitens||[]).join(', ');
-
-        html += `<tr style="background:${bg};">
-          <td style="padding:4pt 6pt;border:1pt solid #e2e8f0;">
-            <span style="font-weight:600;">${desc}</span>
-            ${subs?`<br><span style="font-size:7.5pt;color:#64748b;">└ ${subs}</span>`:''}
-          </td>
-          <td style="padding:4pt 6pt;border:1pt solid #e2e8f0;text-align:center;">${qtd} ${mat.unidade}</td>
-          <td style="padding:4pt 6pt;border:1pt solid #e2e8f0;text-align:right;color:#1E6FD9;">${fmt(venda)}</td>
-          <td style="padding:4pt 6pt;border:1pt solid #e2e8f0;text-align:right;font-weight:600;">${fmt(venda*qtd)}</td>
-        </tr>`;
-      });
-
-      html += `</tbody></table>`;
-      if(f.obs) html += `<div style="font-size:8pt;color:#64748b;padding:3pt 6pt;background:#f8faff;border-left:3pt solid #1E6FD9;margin-bottom:4pt;">📝 ${f.obs}</div>`;
-      html += `</div>`;
-    });
-
-    // Bloco de totais
-    html += `<div style="page-break-inside:avoid;margin:16pt 0;border:1.5pt solid #1E6FD9;border-radius:4pt;overflow:hidden;">
-      <div style="background:#1E6FD9;color:#fff;padding:6pt 10pt;font-size:10pt;font-weight:700;">RESUMO FINANCEIRO</div>
-      <table style="width:100%;border-collapse:collapse;font-size:9pt;">`;
-
-    state.fasesAtivas.filter(f=>f.itens?.length).forEach(f => {
-      html += `<tr><td style="padding:4pt 10pt;border-bottom:1pt solid #e2e8f0;">${f.nome}</td>
-        <td style="padding:4pt 10pt;border-bottom:1pt solid #e2e8f0;text-align:right;">${fmt(calcTotalFase(f))}</td></tr>`;
-    });
-
-    if(descPct > 0) {
-      html += `<tr style="background:#fff7ed;"><td style="padding:4pt 10pt;border-bottom:1pt solid #e2e8f0;color:#ea580c;">Desconto (${descPct}%)</td>
-        <td style="padding:4pt 10pt;border-bottom:1pt solid #e2e8f0;text-align:right;color:#ea580c;">- ${fmt(descontoVal)}</td></tr>`;
-    }
-
-    html += `<tr style="background:#eff6ff;font-weight:700;font-size:11pt;">
-        <td style="padding:8pt 10pt;color:#1E6FD9;">TOTAL GERAL</td>
-        <td style="padding:8pt 10pt;text-align:right;color:#1E6FD9;">${fmt(totalFinal)}</td>
-      </tr>
-      <tr style="background:#f8faff;">
-        <td style="padding:5pt 10pt;font-size:9pt;color:#475569;">Pagamento em ${parcelas}× de</td>
-        <td style="padding:5pt 10pt;text-align:right;font-size:9pt;color:#475569;">${fmt(totalFinal/parcelas)}</td>
-      </tr>
-      </table></div>`;
-
-    if(obs) html += `<div style="font-size:8.5pt;color:#475569;padding:6pt 10pt;background:#f8faff;border:1pt solid #e2e8f0;border-radius:4pt;margin-bottom:12pt;">${obs}</div>`;
-
-    // Separador antes das fotos
-    if(totalFotos > 0) {
-      html += `<div style="page-break-before:always;"></div>
-        <div style="font-size:13pt;font-weight:700;color:#1E6FD9;padding:8pt 0 12pt;border-bottom:2pt solid #1E6FD9;margin-bottom:16pt;">
-          📷 Fotos da Visita Técnica
-        </div>`;
-    }
-  }
-
-  // ── FOTOS POR FASE ─────────────────────────────────────────────────────────
-  let faseComFoto = 0;
-  state.fasesAtivas.forEach((f, fi) => {
-    const itens = modo === 'fotos'
-      ? f.itens.filter(i => (i.fotos||[]).length > 0)
-      : f.itens.filter(i => (i.fotos||[]).length > 0);
-
-    if(!itens.length) return;
-    faseComFoto++;
-
-    html += `<div class="pf-fase">
-      <div class="pf-fase-titulo">${fi+1}. ${f.nome}</div>`;
-
-    itens.forEach(item => {
-      const mat      = state.materiais.find(m=>m.id===item.matId)||{descricao:'?',categoria:'',unidade:'un',custo:0};
-      const isMob    = mat.categoria==='Mão de Obra';
-      const venda    = isMob ? mat.custo : mat.custo*mult;
-      const qtd      = parseInt(item.qtd)||0;
-      const descFinal= item.descCustom||mat.descricao;
-      const subitens = item.subitens||[];
-      const fotos    = item.fotos||[];
-
-      html += `<div class="pf-item">
-        <div class="pf-item-header">
-          <div class="pf-item-nome">${descFinal}</div>
-          <div class="pf-item-meta">${mat.categoria} &nbsp;·&nbsp; ${qtd} ${mat.unidade}${modo==='completo'?'':' &nbsp;·&nbsp; '+fmt(venda*qtd)}</div>
-        </div>
-        <div class="pf-item-body">
-          ${subitens.length?`<div class="pf-subitens">Locais: ${subitens.map(s=>`<span>${s}</span>`).join('')}</div>`:''}
-          <div class="pf-fotos">
-            ${fotos.map(foto=>`
-              <div class="pf-foto-wrap">
-                <img src="${foto.data}" class="pf-foto" alt="${foto.nome||'foto'}">
-                <div class="pf-foto-label">${foto.nome||''}</div>
-              </div>`).join('')}
-          </div>
-        </div>
-      </div>`;
-    });
-
-    html += `</div>`; // pf-fase
-  });
-
-  if(totalFotos === 0 && modo !== 'completo') {
-    html += `<div style="text-align:center;padding:24pt;color:#94a3b8;font-size:10pt;">Nenhuma foto registrada.</div>`;
-  }
-
-  // ── RODAPÉ ─────────────────────────────────────────────────────────────────
-  html += `<div class="pf-rodape">
-    ${modo==='completo'?`<strong>Total: ${fmt(totalFinal)}</strong> &nbsp;·&nbsp; ${parcelas}× de ${fmt(totalFinal/parcelas)} &nbsp;·&nbsp;`:''}
-    ${totalFotos} foto(s) &nbsp;·&nbsp; A instalação será realizada em até 180 dias úteis após confirmação.
-    <br>SP8 Tecnologia &nbsp;·&nbsp; sp8tecnologia.com.br &nbsp;·&nbsp; (11) 99476-9452 &nbsp;·&nbsp; fariasp8@gmail.com
-  </div>`;
-
-  // Injeta e imprime
-  document.getElementById('pdf-fotos-conteudo').innerHTML = html;
-  document.getElementById('escopo-print').style.display = 'none';
-  setTimeout(() => window.print(), 200);
-}
-
 function imprimirEscopoPDF() {
-  // Garante que pdf-fotos-print fique oculto durante impressão do escopo
-  const pdfFotos = document.getElementById('pdf-fotos-print');
-  if(pdfFotos) pdfFotos.style.display = 'none';
   fecharModal('modal-saida');
   setTimeout(()=>window.print(), 150);
 }
@@ -2577,10 +1836,7 @@ function rowMaterial(m, mult) {
     onmouseenter="mostrarTooltipGrupo(event,'${m.categoria}')"
     onmouseleave="ocultarTooltipGrupo()">
     <td class="td-id">${m.id}</td>
-    <td class="td-desc">
-      ${m.descricao}
-      ${m.cProd?`<div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);margin-top:2px;">cProd: ${m.cProd}</div>`:''}
-    </td>
+    <td class="td-desc">${m.descricao}</td>
     <td class="td-un">${m.unidade}</td>
     <td class="td-custo">${fmt(m.custo)}</td>
     <td class="td-venda">${venda!==null?fmt(venda):'<span style="color:#444;">—</span>'}</td>
@@ -2643,46 +1899,37 @@ function abrirModalMaterial(id) {
     const m = state.materiais.find(m=>m.id===id);
     if(!m) return;
     document.getElementById('modal-mat-titulo').textContent = 'EDITAR MATERIAL';
-    document.getElementById('mm-id').value    = m.id;
-    document.getElementById('mm-desc').value  = m.descricao;
-    document.getElementById('mm-cat').value   = m.categoria;
-    document.getElementById('mm-un').value    = m.unidade;
+    document.getElementById('mm-id').value = m.id;
+    document.getElementById('mm-desc').value = m.descricao;
+    document.getElementById('mm-cat').value = m.categoria;
+    document.getElementById('mm-un').value = m.unidade;
     document.getElementById('mm-custo').value = m.custo;
-    document.getElementById('mm-cod').value   = m.id;
-    document.getElementById('mm-cprod').value = m.cProd || '';
-    document.getElementById('btn-excluir-mat').style.display  = 'inline-flex';
-    document.getElementById('btn-historico-mat').style.display= 'inline-flex';
+    document.getElementById('mm-cod').value = m.id;
+    document.getElementById('btn-excluir-mat').style.display = 'inline-flex';
   } else {
     document.getElementById('modal-mat-titulo').textContent = 'NOVO MATERIAL';
-    document.getElementById('mm-id').value    = '';
-    document.getElementById('mm-desc').value  = '';
-    document.getElementById('mm-cat').value   = 'Câmeras';
-    document.getElementById('mm-un').value    = 'un';
+    document.getElementById('mm-id').value = '';
+    document.getElementById('mm-desc').value = '';
+    document.getElementById('mm-cat').value = 'Câmeras';
+    document.getElementById('mm-un').value = 'un';
     document.getElementById('mm-custo').value = '';
-    document.getElementById('mm-cod').value   = '';
-    document.getElementById('mm-cprod').value = '';
-    document.getElementById('btn-excluir-mat').style.display  = 'none';
-    document.getElementById('btn-historico-mat').style.display= 'none';
+    document.getElementById('mm-cod').value = '';
+    document.getElementById('btn-excluir-mat').style.display = 'none';
   }
   abrirModal('modal-material');
 }
 
 function salvarMaterial() {
-  const id    = document.getElementById('mm-id').value;
-  const desc  = document.getElementById('mm-desc').value.trim();
+  const id = document.getElementById('mm-id').value;
+  const desc = document.getElementById('mm-desc').value.trim();
   if(!desc) { alert('Informe a descrição.'); return; }
-  const cat   = document.getElementById('mm-cat').value;
-  const un    = document.getElementById('mm-un').value;
+  const cat = document.getElementById('mm-cat').value;
+  const un = document.getElementById('mm-un').value;
   const custo = parseFloat(document.getElementById('mm-custo').value)||0;
-  const cprod = document.getElementById('mm-cprod').value.trim();
 
   if(id) {
     const m = state.materiais.find(m=>m.id===id);
-    if(m) {
-      if(m.custo !== custo) registrarHistoricoPreco(id, m.custo, custo);
-      m.descricao = desc; m.categoria = cat; m.unidade = un; m.custo = custo;
-      if(cprod) m.cProd = cprod; else delete m.cProd;
-    }
+    if(m) { m.descricao=desc; m.categoria=cat; m.unidade=un; m.custo=custo; }
   } else {
     const prefixos = {Câmeras:'CAM',Gravadores:'NVR',Armazenamento:'HD',
       'Switches/Rede':'SW',Cabeamento:'CAB','Controle de Acesso':'FAC',
@@ -2690,13 +1937,10 @@ function salvarMaterial() {
       Infraestrutura:'INF',Displays:'DIS',Computadores:'COM',
       'Kit Instalação':'KIT','Mão de Obra':'MOB',Outros:'OTH'};
     const prefix = prefixos[cat]||'OTH';
-    const newId  = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
-    const novoMat = { id:newId, categoria:cat, descricao:desc, unidade:un, custo };
-    if(cprod) novoMat.cProd = cprod;
-    state.materiais.push(novoMat);
+    const newId = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
+    state.materiais.push({ id:newId, categoria:cat, descricao:desc, unidade:un, custo });
   }
   salvarState();
-  fbAutoSalvar();
   fecharModal('modal-material');
   renderMateriais();
 }
@@ -2779,254 +2023,6 @@ function dragEnd(e) {
   });
 }
 
-// ==================== FIREBASE — SINCRONIZAÇÃO ====================
-const FB_CFG_KEY = 'sp8_fb_config';
-var FB = null;
-
-function fbCarregarConfig() {
-  try { return JSON.parse(localStorage.getItem(FB_CFG_KEY)||'{}'); } catch { return {}; }
-}
-
-function fbSalvarConfig() {
-  const apiKey    = document.getElementById('fb-apikey').value.trim();
-  const projectId = document.getElementById('fb-projectid').value.trim();
-  if(!apiKey||!projectId) { fbMsgConfig('erro','Preencha API Key e Project ID.'); return; }
-  localStorage.setItem(FB_CFG_KEY, JSON.stringify({ apiKey, projectId }));
-  fbMsgConfig('ok','✅ Configuração salva! Clique em ☁ Nuvem para sincronizar.');
-  fbIniciar({ apiKey, projectId });
-}
-
-function abrirConfigFB() {
-  const cfg = fbCarregarConfig();
-  document.getElementById('fb-apikey').value    = cfg.apiKey||'';
-  document.getElementById('fb-projectid').value = cfg.projectId||'';
-  document.getElementById('fb-config-msg').style.display = 'none';
-  if(cfg.apiKey) document.getElementById('guia-firebase')?.removeAttribute('open');
-  abrirModal('modal-fb-config');
-}
-
-function fbMsgConfig(tipo, txt) {
-  const el = document.getElementById('fb-config-msg');
-  if(!el) return;
-  el.style.display = 'block';
-  const map = {
-    ok:   { bg:'#dcfce7', cor:'#15803d', borda:'#86efac' },
-    erro: { bg:'#fee2e2', cor:'#b91c1c', borda:'#fca5a5' },
-    info: { bg:'#eff6ff', cor:'#1e6fd9', borda:'#93c5fd' },
-  };
-  const s = map[tipo]||map.info;
-  el.style.background = s.bg; el.style.color = s.cor;
-  el.style.border = `1px solid ${s.borda}`;
-  el.textContent = txt;
-}
-
-function fbStatusChip(status, msg) {
-  const dot   = document.getElementById('fb-dot');
-  const label = document.getElementById('fb-label');
-  const btn   = document.getElementById('btn-fb-sync');
-  const cores = { ok:'#16a34a', erro:'#dc2626', sync:'#f59e0b', off:'#94a3b8' };
-  if(dot)   dot.style.background = cores[status]||cores.off;
-  if(label) label.textContent = msg || (status==='ok'?'☁ Nuvem ✓':status==='erro'?'☁ Erro':'☁ Nuvem');
-  if(btn)   btn.disabled = (status==='sync');
-}
-
-function fbIniciar(cfg) {
-  try {
-    if(typeof firebase === 'undefined') {
-      fbStatusChip('erro','SDK não carregado');
-      return false;
-    }
-    if(!firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey:      cfg.apiKey,
-        authDomain:  cfg.projectId + '.firebaseapp.com',
-        projectId:   cfg.projectId,
-      });
-    }
-    FB = firebase.firestore();
-    // Habilita persistência offline
-    FB.enablePersistence({ synchronizeTabs: true }).catch(()=>{});
-    fbStatusChip('ok','☁ Nuvem ✓');
-    return true;
-  } catch(e) {
-    console.error('Firebase init error:', e);
-    fbStatusChip('erro', '☁ Erro: ' + e.message);
-    return false;
-  }
-}
-
-async function fbTestarConexao() {
-  const apiKey    = document.getElementById('fb-apikey').value.trim();
-  const projectId = document.getElementById('fb-projectid').value.trim();
-  if(!apiKey||!projectId) { fbMsgConfig('erro','Preencha os campos.'); return; }
-  fbMsgConfig('info','🔍 Testando...');
-  try {
-    if(!fbIniciar({ apiKey, projectId })) { fbMsgConfig('erro','Falha ao iniciar Firebase.'); return; }
-    await FB.collection('sp8_config').limit(1).get();
-    fbMsgConfig('ok','✅ Firebase OK! Conexão bem-sucedida.');
-  } catch(e) {
-    fbMsgConfig('erro', '❌ Erro: ' + e.message);
-  }
-}
-
-async function fbSincronizar() {
-  if(!FB) {
-    const cfg = fbCarregarConfig();
-    if(!cfg.apiKey) { abrirConfigFB(); return; }
-    if(!fbIniciar(cfg)) return;
-  }
-  fbStatusChip('sync', '↻ Sincronizando...');
-  try {
-    await fbCarregarDados();
-  } catch(e) {
-    fbStatusChip('erro', '☁ Erro sync');
-    console.error('FB sync error:', e);
-    alert('❌ Erro na sincronização:
-' + e.message);
-  }
-}
-
-async function fbSalvarDados() {
-  if(!FB) return;
-  try {
-    const payload = {
-      materiais:    state.materiais,
-      orcamentos:   orcamentosSemFotos(state.orcamentos),
-      versao:       obterVersao(),
-      atualizadoEm: new Date().toISOString(),
-    };
-    await FB.collection('sp8_dados').doc('principal').set(payload);
-    fbStatusChip('ok', '☁ Nuvem ✓');
-    localStorage.setItem('sp8_fb_last_sync', new Date().toISOString());
-  } catch(e) {
-    fbStatusChip('erro', '☁ Erro ao salvar');
-    console.error('FB salvar error:', e);
-  }
-}
-
-async function fbCarregarDados(silencioso) {
-  if(!FB) return;
-  try {
-    const doc = await FB.collection('sp8_dados').doc('principal').get();
-    if(!doc.exists) {
-      // Nuvem vazia — sobe dados locais
-      await fbSalvarDados();
-      if(!silencioso) alert('✅ Dados enviados para a nuvem!
-' + state.orcamentos.length + ' orçamento(s)');
-      return;
-    }
-    const dados = doc.data();
-    const tsNuvem = new Date(dados.atualizadoEm||0).getTime()||0;
-    const tsLocal = new Date(localStorage.getItem('sp8_fb_last_sync')||0).getTime()||0;
-    const totalLocal = state.orcamentos.length;
-    const totalNuvem = dados.orcamentos?.length||0;
-
-    // Nunca sincronizou OU local vazio → baixa sempre
-    if(tsLocal === 0 || totalLocal === 0) {
-      await fbAplicarDados(dados, silencioso);
-      return;
-    }
-
-    // Nuvem mais recente → baixa
-    if(tsNuvem > tsLocal) {
-      await fbAplicarDados(dados, silencioso);
-      return;
-    }
-
-    // Local mais recente → sobe
-    if(tsLocal > tsNuvem || totalLocal > totalNuvem) {
-      await fbSalvarDados();
-      if(!silencioso) alert('✅ Dados enviados para a nuvem!
-' + totalLocal + ' orçamento(s)');
-      return;
-    }
-
-    // Iguais
-    fbStatusChip('ok','☁ Nuvem ✓');
-    if(!silencioso) alert('✅ Dados já sincronizados!');
-
-  } catch(e) {
-    throw e;
-  }
-}
-
-async function fbAplicarDados(dados, silencioso) {
-  state.materiais  = dados.materiais  || state.materiais;
-  const orcsNuvem  = dados.orcamentos || [];
-  state.orcamentos = restaurarFotosLocais(orcsNuvem);
-  if(dados.versao) localStorage.setItem(APP_VERSAO_KEY, dados.versao);
-  salvarState();
-  mostrarVersao();
-  renderDashboard();
-  localStorage.setItem('sp8_fb_last_sync', dados.atualizadoEm || new Date().toISOString());
-  fbStatusChip('ok','☁ Nuvem ✓');
-  if(!silencioso) {
-    alert('✅ Dados carregados da nuvem!
-' + state.orcamentos.length + ' orçamento(s) · ' + state.materiais.length + ' material(is)');
-  }
-}
-
-async function fbForcarUpload() {
-  if(!FB) {
-    const cfg = fbCarregarConfig();
-    if(!cfg.apiKey) { alert('Configure o Firebase primeiro.'); return; }
-    fbIniciar(cfg);
-  }
-  if(!confirm('⬆️ Forçar upload?
-
-Enviará os dados DESTE computador para a nuvem.
-
-Continuar?')) return;
-  fbStatusChip('sync','↻ Enviando...');
-  try {
-    // Zera timestamp para garantir que é considerado mais recente
-    localStorage.setItem('sp8_fb_last_sync', new Date().toISOString());
-    await fbSalvarDados();
-    fecharModal('modal-fb-config');
-    alert('✅ Dados enviados!
-
-No outro computador clique em ☁ Nuvem para baixar.');
-  } catch(e) {
-    fbStatusChip('erro','☁ Erro');
-    alert('❌ Erro: ' + e.message);
-  }
-}
-
-// Listener em tempo real — atualiza automaticamente quando outro usuário salva
-var _fbUnsubscribe = null;
-function fbIniciarListener() {
-  if(!FB || _fbUnsubscribe) return;
-  _fbUnsubscribe = FB.collection('sp8_dados').doc('principal')
-    .onSnapshot(function(doc) {
-      if(!doc.exists) return;
-      const dados     = doc.data();
-      const tsNuvem   = new Date(dados.atualizadoEm||0).getTime()||0;
-      const tsLocal   = new Date(localStorage.getItem('sp8_fb_last_sync')||0).getTime()||0;
-      // Só aplica se nuvem for mais recente (outra máquina salvou)
-      if(tsNuvem > tsLocal + 5000) { // 5s de tolerância
-        fbAplicarDados(dados, true);
-      }
-    }, function(e) {
-      console.error('FB listener error:', e);
-    });
-}
-
-function fbIniciarAoAbrir() {
-  const cfg = fbCarregarConfig();
-  if(!cfg.apiKey) return;
-  const ok = fbIniciar(cfg);
-  if(ok) {
-    fbCarregarDados(true)
-      .then(() => fbIniciarListener())
-      .catch(() => fbStatusChip('erro','☁ Erro ao conectar'));
-  }
-}
-
-// Salva na nuvem após cada salvarState (substituindo Gist)
-function fbAutoSalvar() {
-  const cfg = fbCarregarConfig();
-  if(FB && cfg.apiKey) fbSalvarDados().catch(()=>{});
-}
 // ==================== BACKUP — EXPORTAR / IMPORTAR ====================
 function exportarDados() {
   const versao = obterVersao();
@@ -3088,1132 +2084,9 @@ function importarDados(input) {
   reader.readAsText(file);
 }
 
-// ==================== FOTOS POR ITEM — UPLOAD DIRETO ====================
-let _fotoFaseId   = null;
-let _fotoIdx      = null;
-let _galeriaFaseId = null;
-let _galeriaIdx   = null;
-let _galeriaAtual = 0;
-let _fotosProcessadas = [];
-
-function abrirUploadFoto(faseId, idx) {
-  _fotoFaseId = faseId;
-  _fotoIdx    = idx;
-  _fotosProcessadas = [];
-  // Limpa UI
-  document.getElementById('upload-preview').style.display   = 'none';
-  document.getElementById('upload-progress').style.display  = 'none';
-  document.getElementById('upload-thumbs').innerHTML        = '';
-  document.getElementById('drop-zone').style.borderColor    = 'var(--border2)';
-  document.getElementById('input-foto').value = '';
-  abrirModal('modal-foto-drive');
-}
-
-function dropZoneOver(e) {
-  e.preventDefault();
-  document.getElementById('drop-zone').style.borderColor = 'var(--accent)';
-  document.getElementById('drop-zone').style.background  = 'var(--azul-muted)';
-}
-function dropZoneLeave(e) {
-  document.getElementById('drop-zone').style.borderColor = 'var(--border2)';
-  document.getElementById('drop-zone').style.background  = 'var(--bg3)';
-}
-function dropZoneDrop(e) {
-  e.preventDefault();
-  dropZoneLeave(e);
-  const inp = document.getElementById('input-foto');
-  // Cria DataTransfer para passar os arquivos ao input
-  const dt = new DataTransfer();
-  Array.from(e.dataTransfer.files).forEach(f => dt.items.add(f));
-  inp.files = dt.files;
-  processarFotos(inp);
-}
-
-function processarFotos(input) {
-  const files = Array.from(input.files).filter(f => f.type.startsWith('image/'));
-  if(!files.length) return;
-
-  _fotosProcessadas = [];
-  document.getElementById('upload-progress').style.display = 'block';
-  document.getElementById('upload-preview').style.display  = 'none';
-  document.getElementById('upload-thumbs').innerHTML       = '';
-
-  let processados = 0;
-  const total = files.length;
-
-  files.forEach((file, i) => {
-    const reader = new FileReader();
-    reader.onload = e => {
-      comprimirImagem(e.target.result, (dataComprimida) => {
-        _fotosProcessadas.push({
-          nome: file.name.replace(/\.[^.]+$/, ''),
-          data: dataComprimida,
-          tipo: 'local',
-          adicionadaEm: new Date().toISOString(),
-        });
-        processados++;
-        // Atualiza barra
-        const pct = Math.round(processados/total*100);
-        document.getElementById('upload-progress-bar').style.width = pct+'%';
-        document.getElementById('upload-progress-label').textContent = `Processando ${processados} de ${total}...`;
-
-        if(processados === total) {
-          // Mostra preview e adiciona automaticamente
-          document.getElementById('upload-progress').style.display = 'none';
-          salvarFotosUpload();
-        }
-      });
-    };
-    reader.readAsDataURL(file);
-  });
-}
-
-function comprimirImagem(dataUrl, callback) {
-  const img = new Image();
-  img.onload = () => {
-    const MAX = 1280;
-    let { width, height } = img;
-    if(width > MAX || height > MAX) {
-      if(width > height) { height = Math.round(height*MAX/width); width = MAX; }
-      else { width = Math.round(width*MAX/height); height = MAX; }
-    }
-    const canvas = document.createElement('canvas');
-    canvas.width = width; canvas.height = height;
-    canvas.getContext('2d').drawImage(img, 0, 0, width, height);
-    callback(canvas.toDataURL('image/jpeg', 0.75));
-  };
-  img.src = dataUrl;
-}
-
-function salvarFotosUpload() {
-  if(!_fotosProcessadas.length) return;
-  const f = state.fasesAtivas.find(f=>f.id===_fotoFaseId);
-  if(!f||!f.itens[_fotoIdx]) return;
-  if(!f.itens[_fotoIdx].fotos) f.itens[_fotoIdx].fotos = [];
-  _fotosProcessadas.forEach(foto => f.itens[_fotoIdx].fotos.push(foto));
-  fecharModal('modal-foto-drive');
-  renderFases();
-}
-
-function removerFoto(faseId, idx, fi) {
-  const f = state.fasesAtivas.find(f=>f.id===faseId);
-  if(f&&f.itens[idx]&&f.itens[idx].fotos) { f.itens[idx].fotos.splice(fi,1); renderFases(); }
-}
-
-// ── Galeria lightbox ────────────────────────────────────────────────────────
-function abrirGaleriaFoto(faseId, idx, fotoIdx) {
-  _galeriaFaseId = faseId;
-  _galeriaIdx = idx;
-  _galeriaAtual = fotoIdx;
-  renderGaleria();
-  document.getElementById('galeria-overlay').classList.add('aberta');
-  document.addEventListener('keydown', galeriaKeyboard);
-}
-
-function renderGaleria() {
-  const f = state.fasesAtivas.find(f=>f.id===_galeriaFaseId);
-  if(!f) return;
-  const item = f.itens[_galeriaIdx];
-  const mat = state.materiais.find(m=>m.id===item.matId)||{descricao:'?'};
-  const fotos = item.fotos||[];
-  if(!fotos.length) { fecharGaleriaForce(); return; }
-
-  const foto = fotos[_galeriaAtual];
-  document.getElementById('gal-img').src = foto.data;
-  document.getElementById('gal-info').textContent =
-    `${mat.descricao}  |  ${foto.nome||'foto'}  |  ${_galeriaAtual+1} / ${fotos.length}  |  ${foto.adicionadaEm ? new Date(foto.adicionadaEm).toLocaleString('pt-BR') : ''}`;
-
-  // Thumbs
-  document.getElementById('gal-thumbs').innerHTML = fotos.map((ft, i) =>
-    `<img src="${ft.data}" class="galeria-thumb ${i===_galeriaAtual?'ativa':''}"
-      onclick="galeriaIr(${i})" title="${ft.nome||'foto '+(i+1)}">`
-  ).join('');
-
-  // Botões nav
-  document.getElementById('gal-prev').style.display = fotos.length > 1 ? 'flex' : 'none';
-  document.getElementById('gal-next').style.display = fotos.length > 1 ? 'flex' : 'none';
-}
-
-function galeriaNav(dir) {
-  const f = state.fasesAtivas.find(f=>f.id===_galeriaFaseId);
-  if(!f) return;
-  const total = (f.itens[_galeriaIdx]?.fotos||[]).length;
-  _galeriaAtual = (_galeriaAtual + dir + total) % total;
-  renderGaleria();
-}
-
-function galeriaIr(idx) {
-  _galeriaAtual = idx;
-  renderGaleria();
-}
-
-function galeriaKeyboard(e) {
-  if(e.key === 'ArrowLeft')  galeriaNav(-1);
-  if(e.key === 'ArrowRight') galeriaNav(1);
-  if(e.key === 'Escape')     fecharGaleriaForce();
-}
-
-function fecharGaleria(e) {
-  if(e.target.id === 'galeria-overlay') fecharGaleriaForce();
-}
-
-function fecharGaleriaForce() {
-  document.getElementById('galeria-overlay').classList.remove('aberta');
-  document.removeEventListener('keydown', galeriaKeyboard);
-}
-
-// ==================== IMPORTAR XML NF-e ====================
-let _xmlPendente = null; // itens parseados aguardando confirmação
-
-function importarXMLNota(input) {
-  const file = input.files[0];
-  if(!file) return;
-  const reader = new FileReader();
-  reader.onload = e => {
-    try {
-      const parser  = new DOMParser();
-      const xml     = parser.parseFromString(e.target.result, 'text/xml');
-      const erroXML = xml.querySelector('parsererror');
-      if(erroXML) throw new Error('Arquivo XML inválido ou corrompido.');
-
-      // ── Extrai data de emissão da NF ──────────────────────────────────────
-      // dhEmi ex: 2024-03-15T10:30:00-03:00 ou dEmi: 2024-03-15
-      const dhEmiStr = xml.querySelector('dhEmi')?.textContent ||
-                       xml.querySelector('dEmi')?.textContent || '';
-      const dataNF   = dhEmiStr ? new Date(dhEmiStr) : null;
-      const dataNFLabel = dataNF
-        ? dataNF.toLocaleDateString('pt-BR')
-        : 'data não encontrada';
-
-      // Carrega histórico de preços para comparar datas
-      const hist = JSON.parse(localStorage.getItem(HISTORICO_KEY)||'{}');
-
-      const produtos = xml.querySelectorAll('det prod, det > prod');
-      if(!produtos.length) throw new Error('Nenhum produto encontrado no XML. Verifique se é uma NF-e válida.');
-
-      const itensNF = [];
-      produtos.forEach(prod => {
-        const xProd = prod.querySelector('xProd')?.textContent?.trim() || '';
-        const vUnCom= parseFloat(prod.querySelector('vUnCom')?.textContent || '0');
-        const qCom  = parseFloat(prod.querySelector('qCom')?.textContent  || '1');
-        const cProd = prod.querySelector('cProd')?.textContent?.trim() || '';
-        const ncm   = prod.querySelector('NCM')?.textContent?.trim() || '';
-        const vProd = parseFloat(prod.querySelector('vProd')?.textContent || '0');
-        const unCom = prod.querySelector('uCom')?.textContent?.trim() || 'un';
-        if(!xProd) return;
-        itensNF.push({ xProd, vUnCom, qCom, cProd, ncm, vProd, unCom });
-      });
-
-      // ── Cruza com a base: cProd primeiro, depois similaridade ────────────
-      const resultado = itensNF.map(item => {
-        const nomeLower = item.xProd.toLowerCase();
-
-        // 1. Tenta cruzar pelo cProd do fornecedor (match exato)
-        let encontradoPorCodigo = state.materiais.find(m =>
-          m.cProd && m.cProd.toString().trim() === item.cProd.toString().trim()
-        ) || null;
-
-        // 2. Fallback: similaridade de nome
-        let melhor = encontradoPorCodigo;
-        let melhorScore = encontradoPorCodigo ? 1 : 0;
-        let metodo = encontradoPorCodigo ? 'cProd' : 'nome';
-
-        if(!encontradoPorCodigo) {
-          state.materiais.forEach(mat => {
-            const score = similaridade(nomeLower, mat.descricao.toLowerCase());
-            if(score > melhorScore) { melhorScore = score; melhor = mat; }
-          });
-          metodo = melhorScore > 0.4 ? 'nome' : null;
-        }
-
-        const encontrado = melhorScore > 0 ? melhor : null;
-
-        // Verifica se NF é mais antiga que o último preço registrado
-        let bloqueado = false;
-        let motivoBloqueio = '';
-        if(encontrado && dataNF) {
-          const entradas = hist[encontrado.id] || [];
-          if(entradas.length) {
-            const ultimaAtualizacao = new Date(entradas[entradas.length-1].data);
-            if(dataNF < ultimaAtualizacao) {
-              bloqueado = true;
-              motivoBloqueio = `NF de ${dataNFLabel} é anterior à última atualização (${ultimaAtualizacao.toLocaleDateString('pt-BR')})`;
-            }
-          }
-        }
-
-        return {
-          ...item,
-          dataNF,
-          dataNFLabel,
-          matEncontrado: encontrado,
-          score: melhorScore,
-          metodo, // 'cProd' | 'nome' | null
-          custoAnterior: encontrado?.custo || null,
-          acao: encontrado ? 'atualizar' : 'adicionar',
-          bloqueado,
-          motivoBloqueio,
-        };
-      });
-
-      _xmlPendente = resultado;
-      mostrarResultadoXML(resultado, file.name, dataNFLabel);
-
-    } catch(err) {
-      alert(`❌ Erro ao processar XML:\n${err.message}`);
-    } finally {
-      input.value = '';
-    }
-  };
-  reader.readAsText(file, 'ISO-8859-1');
-}
-
-function similaridade(a, b) {
-  // Score simples por palavras em comum
-  const pa = a.split(/\s+/).filter(w=>w.length>2);
-  const pb = b.split(/\s+/).filter(w=>w.length>2);
-  if(!pa.length||!pb.length) return 0;
-  const comuns = pa.filter(w => pb.some(wb => wb.includes(w)||w.includes(wb)));
-  return comuns.length / Math.max(pa.length, pb.length);
-}
-
-function mostrarResultadoXML(resultado, nomeArquivo, dataNFLabel) {
-  const atualizados = resultado.filter(i=>i.acao==='atualizar' && !i.bloqueado);
-  const novos       = resultado.filter(i=>i.acao==='adicionar');
-  const bloqueados  = resultado.filter(i=>i.bloqueado);
-
-  let html = `
-    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:14px;">
-      📄 ${nomeArquivo}
-      <span style="margin-left:8px;background:var(--bg4);padding:2px 8px;border-radius:4px;font-size:11px;">
-        Data NF: <strong>${dataNFLabel}</strong>
-      </span>
-    </p>`;
-
-  // Aviso se houver itens bloqueados
-  if(bloqueados.length) {
-    html += `<div style="background:#fef9c3;border:1px solid #fde047;border-radius:8px;padding:10px 14px;margin-bottom:14px;font-size:12px;color:#854d0e;">
-      ⚠️ <strong>${bloqueados.length} item(s) NÃO serão atualizados</strong> pois esta NF é mais antiga que o preço já registrado na base.
-    </div>`;
-  }
-
-  html += `<div style="display:flex;gap:10px;margin-bottom:14px;">
-    <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-      <div style="font-size:20px;font-weight:700;color:var(--accent);">${atualizados.length}</div>
-      <div style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">Atualizar preço</div>
-    </div>
-    <div style="flex:1;padding:10px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-      <div style="font-size:20px;font-weight:700;color:var(--verde);">${novos.length}</div>
-      <div style="font-size:10px;color:var(--text3);font-family:var(--fonte-cond);">Adicionar novo</div>
-    </div>
-    <div style="flex:1;padding:10px;background:#fef9c3;border-radius:8px;border:1px solid #fde047;text-align:center;">
-      <div style="font-size:20px;font-weight:700;color:#a16207;">${bloqueados.length}</div>
-      <div style="font-size:10px;color:#a16207;font-family:var(--fonte-cond);">Bloqueados (NF antiga)</div>
-    </div>
-  </div>`;
-
-  // Tabela
-  html += `<div style="max-height:300px;overflow-y:auto;border:1px solid var(--border);border-radius:8px;">
-    <table style="width:100%;border-collapse:collapse;font-size:12px;">
-      <thead style="position:sticky;top:0;background:var(--bg3);">
-        <tr>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Produto na NF</th>
-          <th style="padding:7px 10px;text-align:left;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Item na Base</th>
-          <th style="padding:7px 10px;text-align:right;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Valor NF</th>
-          <th style="padding:7px 10px;text-align:center;font-size:10px;color:var(--text3);border-bottom:1px solid var(--border);">Status</th>
-        </tr>
-      </thead>
-      <tbody>`;
-
-  resultado.forEach((item, i) => {
-    const bg = item.bloqueado ? '#fffbeb' : i%2===0?'var(--bg2)':'var(--bg3)';
-
-    let badge;
-    if(item.bloqueado) {
-      badge = `<span title="${item.motivoBloqueio}" style="background:#fef9c3;color:#a16207;border:1px solid #fde047;font-size:10px;padding:2px 7px;border-radius:20px;cursor:help;">🔒 bloqueado</span>`;
-    } else if(item.acao==='atualizar') {
-      const seta = item.vUnCom > (item.custoAnterior||0) ? '▲' : '▼';
-      const cor  = item.vUnCom > (item.custoAnterior||0) ? '#dc2626' : '#16a34a';
-      badge = `<span style="background:#eff6ff;color:var(--accent);border:1px solid #bfdbfe;font-size:10px;padding:2px 7px;border-radius:20px;">↻ atualizar <span style="color:${cor}">${seta}</span></span>`;
-    } else {
-      badge = `<span style="background:#dcfce7;color:#16a34a;border:1px solid #86efac;font-size:10px;padding:2px 7px;border-radius:20px;">＋ novo</span>`;
-    }
-
-    const baseInfo = item.matEncontrado
-      ? `<span style="font-size:11px;color:var(--text2);">${item.matEncontrado.descricao}</span>
-         <br><span style="font-size:10px;color:var(--text4);">Atual: ${fmt(item.matEncontrado.custo)}
-         &nbsp;·&nbsp;
-         <span style="background:${item.metodo==='cProd'?'#dcfce7':'#eff6ff'};color:${item.metodo==='cProd'?'#15803d':'#1e6fd9'};padding:1px 5px;border-radius:3px;">
-           ${item.metodo==='cProd'?'🔑 por cProd':'~ por nome'}
-         </span></span>
-         ${item.bloqueado?`<br><span style="font-size:10px;color:#a16207;">⚠️ ${item.motivoBloqueio}</span>`:''}`
-      : `<span style="font-size:11px;color:var(--text3);font-style:italic;">Novo item</span>`;
-
-    html += `<tr style="background:${bg};">
-      <td style="padding:7px 10px;border-bottom:1px solid var(--border);">
-        <div style="font-weight:500;color:var(--text);">${item.xProd}</div>
-        <div style="font-size:10px;color:var(--text4);font-family:var(--fonte-cond);">
-          ${item.cProd?`cProd: <strong>${item.cProd}</strong> &nbsp;·&nbsp;`:''}${item.qCom} ${item.unCom}
-        </div>
-      </td>
-      <td style="padding:7px 10px;border-bottom:1px solid var(--border);">${baseInfo}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:right;font-weight:600;color:var(--accent);font-family:var(--fonte-cond);">${fmt(item.vUnCom)}</td>
-      <td style="padding:7px 10px;border-bottom:1px solid var(--border);text-align:center;">${badge}</td>
-    </tr>`;
-  });
-
-  html += `</tbody></table></div>
-    <p style="font-size:11px;color:var(--text3);margin-top:10px;font-family:var(--fonte-cond);">
-      🔒 Itens bloqueados não serão alterados. Passe o mouse sobre o badge para ver o motivo.
-    </p>`;
-
-  document.getElementById('xml-resultado-conteudo').innerHTML = html;
-  // Só mostra botão confirmar se houver algo para fazer
-  const temAlgo = atualizados.length + novos.length > 0;
-  document.getElementById('btn-xml-confirmar').style.display = temAlgo ? 'inline-flex' : 'none';
-  abrirModal('modal-xml-resultado');
-}
-
-function confirmarImportacaoXML() {
-  if(!_xmlPendente?.length) return;
-  let atualizados = 0, adicionados = 0, pulados = 0;
-
-  _xmlPendente.forEach(item => {
-    // Pula itens bloqueados (NF mais antiga)
-    if(item.bloqueado) { pulados++; return; }
-
-    if(item.acao === 'atualizar' && item.matEncontrado) {
-      const mat = state.materiais.find(m=>m.id===item.matEncontrado.id);
-      if(mat) {
-        if(mat.custo !== item.vUnCom) {
-          registrarHistoricoPreco(mat.id, mat.custo, item.vUnCom);
-          mat.custo = item.vUnCom;
-          atualizados++;
-        }
-        // Salva o cProd do fornecedor para cruzamento futuro automático
-        if(item.cProd && !mat.cProd) mat.cProd = item.cProd;
-      }
-    } else if(item.acao === 'adicionar') {
-      const cat    = inferirCategoria(item.xProd, item.ncm);
-      const prefix = { Câmeras:'CAM',Gravadores:'NVR',Armazenamento:'HD','Switches/Rede':'SW',
-        Cabeamento:'CAB','Controle de Acesso':'FAC','Módulo Guarita':'GUA','Cerca Elétrica':'CER',
-        Energia:'ENE',Infraestrutura:'INF',Displays:'DIS',Computadores:'COM',
-        'Kit Instalação':'KIT','Mão de Obra':'MOB',Outros:'OTH' }[cat]||'OTH';
-      const newId = prefix+String(state.materiais.filter(m=>m.id.startsWith(prefix)).length+1).padStart(3,'0');
-      state.materiais.push({
-        id: newId, categoria: cat,
-        descricao: item.xProd,
-        unidade: item.unCom.toLowerCase()||'un',
-        custo: item.vUnCom,
-      });
-      adicionados++;
-    }
-  });
-
-  salvarState();
-  _xmlPendente = null;
-  fecharModal('modal-xml-resultado');
-  renderMateriais();
-  alert(`✅ Importação concluída!\n\n${atualizados} item(s) atualizado(s)\n${adicionados} item(s) adicionado(s)${pulados?`\n🔒 ${pulados} item(s) bloqueado(s) — NF mais antiga que último preço`:''}\n\nHistórico de preços registrado.`);
-}
-
-function inferirCategoria(nome, ncm) {
-  const n = nome.toLowerCase();
-  if(/c[âa]mera|cam\b|dome|bullet|varifocal|ip\b.*cam/.test(n)) return 'Câmeras';
-  if(/nvr|dvr|gravador/.test(n)) return 'Gravadores';
-  if(/hd\b|disco|ssd|storage/.test(n)) return 'Armazenamento';
-  if(/switch|poe|hub/.test(n)) return 'Switches/Rede';
-  if(/cabo|cat5|cat6|conector|rj45/.test(n)) return 'Cabeamento';
-  if(/facial|biometri|acesso|leitor|controlador/.test(n)) return 'Controle de Acesso';
-  if(/nobreak|fonte|energia|bateria/.test(n)) return 'Energia';
-  if(/rack|caixa|eletroduto|infra/.test(n)) return 'Infraestrutura';
-  if(/tv\b|monitor|display|tela/.test(n)) return 'Displays';
-  if(/computador|pc\b|processador|notebook/.test(n)) return 'Computadores';
-  if(/cerca|fio|arame|sirene|haste/.test(n)) return 'Cerca Elétrica';
-  if(/guarita|portao|receptor|controle remoto/.test(n)) return 'Módulo Guarita';
-  return 'Outros';
-}
-
-// ==================== RECALCULAR ORÇAMENTO COM PREÇOS ATUAIS ====================
-let _recalcularId = null;
-
-function recalcularOrcamento(id) {
-  const orc = state.orcamentos.find(o=>o.id===id);
-  if(!orc) return;
-  _recalcularId = id;
-
-  const mult      = parseFloat(orc.multiplicador||1.4);
-  const totalAtual= calcTotalVenda(orc);
-
-  // Simula novo total com preços atuais da base
-  let totalNovo = 0;
-  let itensAlterados = 0;
-  const detalhes = [];
-
-  orc.fases.forEach(f => {
-    (f.itens||[]).forEach(item => {
-      const matAtual = state.materiais.find(m=>m.id===item.matId);
-      if(!matAtual) return;
-      const isMob    = matAtual.categoria==='Mão de Obra';
-      const qtd      = parseInt(item.qtd)||0;
-
-      // Preço atual da base
-      const custoNovo  = matAtual.custo;
-      const vendaNovo  = isMob ? custoNovo : custoNovo*mult;
-      const totalItem  = vendaNovo*qtd;
-      totalNovo += totalItem;
-
-      // Preço que estava no orçamento (recalcula pelo custo salvo)
-      const vendaAnt = isMob ? matAtual.custo : matAtual.custo*mult;
-
-      if(Math.abs(custoNovo - matAtual.custo) > 0.01) itensAlterados++;
-      detalhes.push({ desc: item.descCustom||matAtual.descricao, qtd, custoNovo, vendaNovo, totalItem });
-    });
-  });
-
-  const diff     = totalNovo - totalAtual;
-  const diffPct  = totalAtual > 0 ? ((diff/totalAtual)*100).toFixed(1) : 0;
-  const parcelas = parseInt(orc.parcelas||12);
-  const corDiff  = diff > 0 ? '#dc2626' : diff < 0 ? '#16a34a' : 'var(--text3)';
-  const sinalDiff= diff > 0 ? '▲' : diff < 0 ? '▼' : '=';
-
-  const html = `
-    <p style="font-size:12px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:16px;">
-      Orçamento: <strong>${orc.nome}</strong> · Versão original de ${orc.data||'?'}
-    </p>
-    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin-bottom:16px;">
-      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">VALOR ATUAL</div>
-        <div style="font-size:16px;font-weight:700;color:var(--text);font-family:var(--fonte-cond);">${fmt(totalAtual)}</div>
-      </div>
-      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">NOVO VALOR</div>
-        <div style="font-size:16px;font-weight:700;color:var(--accent);font-family:var(--fonte-cond);">${fmt(totalNovo)}</div>
-      </div>
-      <div style="padding:14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);text-align:center;">
-        <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);margin-bottom:4px;">DIFERENÇA</div>
-        <div style="font-size:16px;font-weight:700;color:${corDiff};font-family:var(--fonte-cond);">${sinalDiff} ${fmt(Math.abs(diff))} (${Math.abs(diffPct)}%)</div>
-      </div>
-    </div>
-    <div style="padding:10px 14px;background:var(--bg3);border-radius:8px;border:1px solid var(--border);margin-bottom:14px;font-size:12px;">
-      <span style="color:var(--text2);">Nova parcela (${parcelas}×):</span>
-      <strong style="color:var(--accent);font-family:var(--fonte-cond);margin-left:8px;">${fmt(totalNovo/parcelas)}</strong>
-      <span style="color:var(--text4);font-size:11px;margin-left:8px;">(era ${fmt(totalAtual/parcelas)})</span>
-    </div>
-    <p style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
-      ⚠️ O recálculo atualiza os custos usando os preços atuais da Base de Materiais. 
-      O markup (${((mult-1)*100).toFixed(0)}%) é mantido. Uma nova versão será criada.
-    </p>`;
-
-  document.getElementById('recalcular-conteudo').innerHTML = html;
-  abrirModal('modal-recalcular');
-}
-
-function confirmarRecalculo() {
-  const orc = state.orcamentos.find(o=>o.id===_recalcularId);
-  if(!orc) return;
-
-  // Os custos na base já estão atualizados — só precisa forçar re-save
-  // pois calcTotalVenda sempre busca custo atual da base
-  orc.atualizadoEm  = new Date().toISOString();
-  orc.recalculadoEm = new Date().toLocaleString('pt-BR');
-  salvarState();
-  fecharModal('modal-recalcular');
-  renderDashboard();
-  alert(`✅ Orçamento recalculado! (v${obterVersao()})\n\nAbra o orçamento para gerar nova proposta.`);
-}
-
-// ==================== DESCONTO ====================
-function calcTotalComDesconto(totalBruto) {
-  const desc = parseFloat(document.getElementById('f-desconto')?.value||0);
-  if(!desc) return totalBruto;
-  return totalBruto * (1 - desc/100);
-}
-
-// ==================== DUPLICAR ORÇAMENTO ====================
-function duplicarOrcamento(id) {
-  const orig = state.orcamentos.find(o=>o.id===id);
-  if(!orig) return;
-  const novo = JSON.parse(JSON.stringify(orig));
-  novo.id = 'ORC_'+Date.now();
-  novo.numero = gerarNumeroOrc();
-  novo.nome = orig.nome + ' (cópia)';
-  novo.status = 'rascunho';
-  novo.atualizadoEm = new Date().toISOString();
-  state.orcamentos.push(novo);
-  salvarState();
-  renderDashboard();
-  if(confirm(`✅ Orçamento duplicado!\n"${novo.nome}"\n\nDeseja abrir para editar?`)) editarOrcamento(novo.id);
-}
-
-function gerarNumeroOrc() {
-  const max = state.orcamentos.reduce((m,o)=>Math.max(m,parseInt(o.numero)||0),0);
-  return String(max+1).padStart(4,'0');
-}
-
-// ==================== OBSERVAÇÃO POR FASE ====================
-function atualizarObsFase(id, obs) {
-  const f = state.fasesAtivas.find(f=>f.id===id);
-  if(f) f.obs = obs;
-}
-
-// ==================== TEMPLATES DE FASES ====================
-const TEMPLATES_KEY = 'sp8_templates_fase';
-
-function salvarTemplate(faseId) {
-  const f = state.fasesAtivas.find(f=>f.id===faseId);
-  if(!f||!f.itens.length) { alert('A fase precisa ter itens para ser salva como template.'); return; }
-  const nome = prompt('Nome do template:', f.nome);
-  if(!nome) return;
-  const templates = JSON.parse(localStorage.getItem(TEMPLATES_KEY)||'[]');
-  templates.push({ id:'TPL_'+Date.now(), nome, itens:JSON.parse(JSON.stringify(f.itens)) });
-  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(templates));
-  alert(`✅ Template "${nome}" salvo! Use "+ Adicionar Fase" → carregar template.`);
-}
-
-function carregarTemplates() {
-  return JSON.parse(localStorage.getItem(TEMPLATES_KEY)||'[]');
-}
-
-function usarTemplate(tplId) {
-  const tpls = carregarTemplates();
-  const tpl = tpls.find(t=>t.id===tplId);
-  if(!tpl) return;
-  const id = 'fase_'+Date.now()+'_'+state.nextFaseId++;
-  state.fasesAtivas.push({ id, nome:tpl.nome, itens:JSON.parse(JSON.stringify(tpl.itens)), obs:'' });
-  fecharModal('modal-templates');
-  renderFases();
-}
-
-function abrirModalTemplates() {
-  const tpls = carregarTemplates();
-  const modal = document.getElementById('modal-templates');
-  const lista = document.getElementById('tpl-lista');
-  if(!lista) return;
-  if(!tpls.length) {
-    lista.innerHTML = '<p style="color:var(--text3);font-size:13px;padding:16px 0;">Nenhum template salvo. Crie uma fase com itens e clique em 📌 para salvar.</p>';
-  } else {
-    lista.innerHTML = tpls.map(t=>`
-      <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--border);">
-        <div>
-          <div style="font-size:13px;font-weight:600;color:var(--text);">${t.nome}</div>
-          <div style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">${t.itens.length} item(s)</div>
-        </div>
-        <div style="display:flex;gap:6px;">
-          <button class="btn btn-primary btn-sm" onclick="usarTemplate('${t.id}')">Usar</button>
-          <button class="btn btn-danger btn-xs" onclick="excluirTemplate('${t.id}')">✕</button>
-        </div>
-      </div>`).join('');
-  }
-  abrirModal('modal-templates');
-}
-
-function excluirTemplate(id) {
-  let tpls = carregarTemplates().filter(t=>t.id!==id);
-  localStorage.setItem(TEMPLATES_KEY, JSON.stringify(tpls));
-  abrirModalTemplates();
-}
-
-// ==================== COMPARATIVO DE ORÇAMENTOS ====================
-function abrirComparativo(preselId) {
-  const sel = document.getElementById('comp-a');
-  const selB = document.getElementById('comp-b');
-  if(!sel||!selB) return;
-  const opts = state.orcamentos.map(o=>`<option value="${o.id}">${o.nome||'Sem nome'}</option>`).join('');
-  sel.innerHTML = opts; selB.innerHTML = opts;
-  if(preselId) sel.value = preselId;
-  document.getElementById('comp-resultado').innerHTML = '';
-  abrirModal('modal-comparativo');
-}
-
-function executarComparativo() {
-  const idA = document.getElementById('comp-a').value;
-  const idB = document.getElementById('comp-b').value;
-  if(idA===idB) { alert('Selecione dois orçamentos diferentes.'); return; }
-  const a = state.orcamentos.find(o=>o.id===idA);
-  const b = state.orcamentos.find(o=>o.id===idB);
-  if(!a||!b) return;
-  const tA = calcTotalVenda(a), tB = calcTotalVenda(b);
-  const mA = calcCustoMat(a), mB = calcCustoMat(b);
-  const linhas = [
-    ['Total Geral (venda)', fmt(tA), fmt(tB)],
-    ['Custo Materiais', fmt(mA), fmt(mB)],
-    ['Margem Bruta', fmt(tA-mA), fmt(tB-mB)],
-    ['Fases', a.fases?.length||0, b.fases?.length||0],
-    ['Status', a.status||'—', b.status||'—'],
-    ['Parcelas', `${a.parcelas||12}×`, `${b.parcelas||12}×`],
-  ];
-  document.getElementById('comp-resultado').innerHTML = `
-    <table style="width:100%;border-collapse:collapse;font-size:13px;">
-      <thead><tr>
-        <th style="padding:8px;text-align:left;font-size:10px;color:var(--text3);font-family:var(--fonte-cond);border-bottom:1px solid var(--border);"></th>
-        <th style="padding:8px;text-align:right;font-size:12px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);">${a.nome||'A'}</th>
-        <th style="padding:8px;text-align:right;font-size:12px;font-weight:700;color:var(--text);border-bottom:1px solid var(--border);">${b.nome||'B'}</th>
-      </tr></thead>
-      <tbody>${linhas.map(([l,va,vb])=>`
-        <tr>
-          <td style="padding:8px 0;color:var(--text3);font-family:var(--fonte-cond);font-size:11px;border-bottom:1px solid var(--border);">${l}</td>
-          <td style="padding:8px;text-align:right;font-weight:600;border-bottom:1px solid var(--border);">${va}</td>
-          <td style="padding:8px;text-align:right;font-weight:600;border-bottom:1px solid var(--border);">${vb}</td>
-        </tr>`).join('')}
-      </tbody>
-    </table>
-    <div style="margin-top:12px;padding:10px;background:var(--bg3);border-radius:6px;font-size:12px;color:var(--text3);font-family:var(--fonte-cond);">
-      Diferença total: <strong style="color:${tA>tB?'var(--verde)':'var(--vermelho)'};">${fmt(Math.abs(tA-tB))}</strong>
-      ${tA>tB?'(A maior)':'(B maior)'}
-    </div>`;
-}
-
-// ==================== HISTÓRICO DE PREÇO ====================
-const HISTORICO_KEY = 'sp8_historico_preco';
-
-function registrarHistoricoPreco(matId, custoAnterior, custoNovo) {
-  if(custoAnterior===custoNovo) return;
-  const hist = JSON.parse(localStorage.getItem(HISTORICO_KEY)||'{}');
-  if(!hist[matId]) hist[matId]=[];
-  hist[matId].push({ data:new Date().toISOString(), anterior:custoAnterior, novo:custoNovo });
-  localStorage.setItem(HISTORICO_KEY, JSON.stringify(hist));
-}
-
-function verHistoricoPreco(matId) {
-  const hist = JSON.parse(localStorage.getItem(HISTORICO_KEY)||'{}');
-  const mat = state.materiais.find(m=>m.id===matId);
-  const entradas = hist[matId]||[];
-  if(!entradas.length) { alert('Nenhum histórico de alteração de preço para este item.'); return; }
-  const txt = entradas.slice(-10).reverse().map(h=>
-    `${new Date(h.data).toLocaleString('pt-BR')}  |  ${fmt(h.anterior)} → ${fmt(h.novo)}`
-  ).join('\n');
-  alert(`Histórico de preço: ${mat?.descricao||matId}\n\n${txt}`);
-}
-
-// ==================== APRESENTAÇÃO ====================
-let apresSlides = [];
-let apresAtual = 0;
-
-function abrirApresentacao() {
-  const nome = document.getElementById('f-nome').value||'Orçamento';
-  const sindico = document.getElementById('f-sindico').value||'';
-  const mult = parseFloat(document.getElementById('f-mult').value||1.4);
-  const desc = parseFloat(document.getElementById('f-desconto')?.value||0);
-
-  apresSlides = [];
-
-  // Slide 1: Capa
-  apresSlides.push(`
-    <div style="display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:500px;background:linear-gradient(135deg,#0f172a,#1e3a5f);padding:48px;text-align:center;">
-      <img src="https://static.wixstatic.com/media/caba05_92a8b2666df64f1b825ed18f4274dc79~mv2.png" style="height:64px;margin-bottom:32px;filter:brightness(1.2);" onerror="this.style.display='none'">
-      <div style="font-size:11px;letter-spacing:3px;color:#60a5fa;text-transform:uppercase;margin-bottom:16px;font-family:monospace;">Proposta Comercial</div>
-      <div style="font-size:32px;font-weight:700;color:#fff;margin-bottom:12px;line-height:1.2;">${nome}</div>
-      ${sindico?`<div style="font-size:16px;color:#94a3b8;">Att. ${sindico}</div>`:''}
-      <div style="margin-top:32px;font-size:12px;color:#475569;">${formatarData(new Date().toISOString().split('T')[0])}</div>
-    </div>`);
-
-  // Slides por fase
-  state.fasesAtivas.forEach((f,i)=>{
-    if(!f.itens?.length) return;
-    const totalFase = calcTotalFase(f);
-    const itensHtml = f.itens.map(item=>{
-      const mat = state.materiais.find(m=>m.id===item.matId)||{descricao:'?',categoria:'',custo:0,unidade:'un'};
-      const isMob = mat.categoria==='Mão de Obra';
-      const venda = isMob?mat.custo:mat.custo*mult;
-      const qtd = parseInt(item.qtd)||0;
-      const descFinal = item.descCustom||mat.descricao;
-      return `<tr>
-        <td style="padding:8px 12px;font-size:13px;color:#e2e8f0;border-bottom:1px solid #334155;">${descFinal}</td>
-        <td style="padding:8px 12px;font-size:13px;color:#94a3b8;border-bottom:1px solid #334155;text-align:center;">${qtd} ${mat.unidade}</td>
-        <td style="padding:8px 12px;font-size:13px;color:#60a5fa;border-bottom:1px solid #334155;text-align:right;font-family:monospace;">${fmt(venda*qtd)}</td>
-      </tr>`;
-    }).join('');
-    apresSlides.push(`
-      <div style="background:#0f172a;min-height:500px;padding:40px;display:flex;flex-direction:column;">
-        <div style="display:flex;align-items:center;gap:12px;margin-bottom:24px;">
-          <div style="background:#2563eb;color:#fff;font-family:monospace;font-size:13px;font-weight:700;width:28px;height:28px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">${i+1}</div>
-          <div style="font-size:18px;font-weight:700;color:#f1f5f9;text-transform:uppercase;">${f.nome}</div>
-          <div style="margin-left:auto;font-family:monospace;font-size:16px;font-weight:700;color:#10b981;">${fmt(totalFase)}</div>
-        </div>
-        <table style="width:100%;border-collapse:collapse;">
-          <thead><tr>
-            <th style="padding:8px 12px;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;text-align:left;border-bottom:2px solid #334155;">Item</th>
-            <th style="padding:8px 12px;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;text-align:center;border-bottom:2px solid #334155;">Qtd</th>
-            <th style="padding:8px 12px;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.8px;text-align:right;border-bottom:2px solid #334155;">Total</th>
-          </tr></thead>
-          <tbody>${itensHtml}</tbody>
-        </table>
-        ${f.obs?`<div style="margin-top:16px;padding:10px 14px;background:#1e293b;border-radius:6px;font-size:12px;color:#94a3b8;border-left:3px solid #2563eb;">📝 ${f.obs}</div>`:''}
-      </div>`);
-  });
-
-  // Slide final: totais
-  let totalBruto = 0;
-  state.fasesAtivas.forEach(f=>{ totalBruto+=calcTotalFase(f); });
-  const totalDesc = calcTotalComDesconto(totalBruto);
-  const parcelas = parseInt(document.getElementById('f-parcelas').value||12);
-  apresSlides.push(`
-    <div style="background:#0f172a;min-height:500px;padding:40px;display:flex;flex-direction:column;justify-content:center;">
-      <div style="font-size:13px;letter-spacing:2px;color:#60a5fa;text-transform:uppercase;margin-bottom:24px;font-family:monospace;">Resumo do Investimento</div>
-      ${state.fasesAtivas.filter(f=>f.itens?.length).map(f=>`
-        <div style="display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #1e293b;">
-          <span style="font-size:13px;color:#94a3b8;">${f.nome}</span>
-          <span style="font-size:13px;font-family:monospace;color:#e2e8f0;">${fmt(calcTotalFase(f))}</span>
-        </div>`).join('')}
-      ${desc>0?`<div style="display:flex;justify-content:space-between;padding:8px 0;"><span style="font-size:13px;color:#f87171;">Desconto (${desc}%)</span><span style="font-size:13px;font-family:monospace;color:#f87171;">- ${fmt(totalBruto-totalDesc)}</span></div>`:''}
-      <div style="display:flex;justify-content:space-between;padding:20px 0;margin-top:16px;border-top:2px solid #2563eb;">
-        <span style="font-size:20px;font-weight:700;color:#f1f5f9;">TOTAL</span>
-        <span style="font-size:28px;font-weight:700;color:#10b981;font-family:monospace;">${fmt(totalDesc)}</span>
-      </div>
-      <div style="font-size:14px;color:#60a5fa;font-family:monospace;text-align:right;">${parcelas}× de ${fmt(totalDesc/parcelas)}</div>
-      <div style="margin-top:32px;text-align:center;font-size:12px;color:#475569;">SP8 Tecnologia · sp8tecnologia.com.br · (11) 99476-9452</div>
-    </div>`);
-
-  apresAtual = 0;
-  renderSlideAtual();
-  abrirModal('modal-apresentacao');
-}
-
-function renderSlideAtual() {
-  document.getElementById('apres-slides').innerHTML = apresSlides[apresAtual]||'';
-  document.getElementById('apres-num').textContent = `${apresAtual+1} / ${apresSlides.length}`;
-}
-function apresAnterior() { if(apresAtual>0){apresAtual--;renderSlideAtual();} }
-function apresPróximo() { if(apresAtual<apresSlides.length-1){apresAtual++;renderSlideAtual();} }
-
-// ==================== EXPORTAR EXCEL (CSV) ====================
-function exportarExcel() {
-  const nome = document.getElementById('f-nome').value||'Orcamento';
-  const mult = parseFloat(document.getElementById('f-mult').value||1.4);
-  const desc = parseFloat(document.getElementById('f-desconto')?.value||0);
-  let csv = '\uFEFF'; // BOM para Excel reconhecer UTF-8
-  csv += 'FASE;ITEM;CATEGORIA;UNIDADE;QTD;CUSTO UNIT;VENDA UNIT;TOTAL VENDA\n';
-  let totalGeral = 0;
-  state.fasesAtivas.forEach(f=>{
-    (f.itens||[]).forEach(item=>{
-      const mat = state.materiais.find(m=>m.id===item.matId)||{descricao:'?',categoria:'',custo:0,unidade:'un'};
-      const isMob = mat.categoria==='Mão de Obra';
-      const venda = isMob?mat.custo:mat.custo*mult;
-      const qtd = parseInt(item.qtd)||0;
-      const total = venda*qtd;
-      totalGeral+=total;
-      const descFinal = item.descCustom||mat.descricao;
-      csv += `"${f.nome}";"${descFinal}";"${mat.categoria}";"${mat.unidade}";${qtd};${mat.custo.toFixed(2).replace('.',',')};${venda.toFixed(2).replace('.',',')};${total.toFixed(2).replace('.',',')}\n`;
-    });
-    csv += `"${f.nome} — SUBTOTAL";"";"";"";"";"";"";${calcTotalFase(f).toFixed(2).replace('.',',')}\n`;
-    csv += '\n';
-  });
-  const totalComDesc = desc>0?totalGeral*(1-desc/100):totalGeral;
-  csv += `"TOTAL GERAL";"";"";"";"";"";"";"${totalGeral.toFixed(2).replace('.',',')}"\n`;
-  if(desc>0) csv += `"DESCONTO ${desc}%";"";"";"";"";"";"";"${(-(totalGeral-totalComDesc)).toFixed(2).replace('.',',')}"\n`;
-  csv += `"TOTAL COM DESCONTO";"";"";"";"";"";"";"${totalComDesc.toFixed(2).replace('.',',')}"\n`;
-
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href=url; a.download=`SP8_${nome.replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.csv`;
-  a.click(); URL.revokeObjectURL(url);
-}
-
-// ==================== MAPA DE CÂMERAS ====================
-function exportarMapaCameras() {
-  const nome = document.getElementById('f-nome').value||'Orcamento';
-
-  // Categorias de câmeras e itens visuais relevantes para o mapa
-  const catsCameras = ['Câmeras'];
-  const keywordsCameras = ['câmera','camera','cam','dome','bullet','varifocal','ip','cftv','nvd','nvr','gravador'];
-
-  let csv = '\uFEFF'; // BOM UTF-8
-  csv += 'FASE;ITEM;LOCAL / SUBITEM;QUANTIDADE;OBSERVAÇÃO\n';
-
-  let totalCams = 0;
-  let encontrou = false;
-
-  state.fasesAtivas.forEach(f => {
-    (f.itens||[]).forEach(item => {
-      const mat = state.materiais.find(m=>m.id===item.matId)||{descricao:item.descManual||'?',categoria:'',unidade:'un'};
-      const qtd = parseInt(item.qtd)||0;
-      const descFinal = item.descCustom || mat.descricao;
-      const descLower = descFinal.toLowerCase();
-
-      // Inclui câmeras + gravadores (NVR/NVD) + outros itens de CFTV
-      const ehCamera = mat.categoria==='Câmeras' ||
-        keywordsCameras.some(k => descLower.includes(k));
-
-      if(!ehCamera) return;
-      encontrou = true;
-
-      const subitens = item.subitens||[];
-      if(subitens.length) {
-        // Uma linha por subitem (local de instalação)
-        subitens.forEach((sub, si) => {
-          csv += `"${f.nome}";"${descFinal}";"${sub}";1;"Local ${si+1} de ${subitens.length}"\n`;
-        });
-        // Se tem mais qtd que subitens, adiciona linhas sem local
-        for(let i = subitens.length; i < qtd; i++) {
-          csv += `"${f.nome}";"${descFinal}";"(local não especificado)";1;""\n`;
-        }
-      } else {
-        csv += `"${f.nome}";"${descFinal}";"";${qtd};""\n`;
-      }
-      if(mat.categoria==='Câmeras') totalCams += qtd;
-    });
-  });
-
-  if(!encontrou) {
-    alert('Nenhum item de câmera encontrado nas fases deste orçamento.\n\nVerifique se os itens pertencem à categoria "Câmeras" na base de materiais.');
-    return;
-  }
-
-  // Rodapé com total
-  csv += `\n"TOTAL DE CÂMERAS";"";"";"${totalCams};""\n`;
-
-  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  const data = new Date().toISOString().slice(0,10);
-  a.href = url;
-  a.download = `Mapa_${nome.replace(/\s+/g,'_')}_${data}.csv`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
-// ==================== GERAR CONTRATO ====================
-function abrirGerarContrato() {
-  // Pré-preenche com dados do orçamento atual
-  const nome = document.getElementById('f-nome').value||'';
-  const sindico = document.getElementById('f-sindico').value||'';
-  const endereco = document.getElementById('f-endereco').value||'';
-  const data = document.getElementById('f-data').value||new Date().toISOString().split('T')[0];
-
-  document.getElementById('ct-nome').value = nome;
-  document.getElementById('ct-sindico').value = sindico;
-  document.getElementById('ct-endereco').value = endereco;
-  document.getElementById('ct-data').value = data;
-  document.getElementById('ct-cnpj').value = '';
-  document.getElementById('ct-cpf').value = '';
-  document.getElementById('ct-prazo').value = '180';
-
-  abrirModal('modal-contrato');
-}
-
-async function gerarContrato() {
-  const ctNome    = document.getElementById('ct-nome').value.trim();
-  const ctCnpj    = document.getElementById('ct-cnpj').value.trim();
-  const ctEnd     = document.getElementById('ct-endereco').value.trim();
-  const ctSindico = document.getElementById('ct-sindico').value.trim();
-  const ctCpf     = document.getElementById('ct-cpf').value.trim();
-  const ctCargo   = document.getElementById('ct-cargo').value;
-  const ctPrazo   = document.getElementById('ct-prazo').value||'180';
-  const ctData    = document.getElementById('ct-data').value||new Date().toISOString().split('T')[0];
-
-  if(!ctNome||!ctSindico) { alert('Preencha ao menos o nome do condomínio e o síndico.'); return; }
-
-  const parcelas  = parseInt(document.getElementById('f-parcelas').value||12);
-  const mult      = parseFloat(document.getElementById('f-mult').value||1.4);
-  const descPct   = parseFloat(document.getElementById('f-desconto')?.value||0);
-
-  // Calcula total
-  let totalBruto = 0;
-  state.fasesAtivas.forEach(f => { totalBruto += calcTotalFase(f); });
-  const totalFinal = descPct>0 ? totalBruto*(1-descPct/100) : totalBruto;
-  const parcValor = totalFinal/parcelas;
-
-  // Gera lista de itens por fase para o contrato
-  let tabelasContrato = '';
-  state.fasesAtivas.forEach(f => {
-    if(!f.itens?.length) return;
-    tabelasContrato += `\n| **${f.nome}** | Qtd |\n|---|---|\n`;
-    f.itens.forEach(item => {
-      const mat = state.materiais.find(m=>m.id===item.matId)||{descricao:'?'};
-      const descFinal = item.descCustom||mat.descricao;
-      const qtd = parseInt(item.qtd)||0;
-      tabelasContrato += `| ${descFinal} | ${qtd} |\n`;
-    });
-  });
-
-  const dataFormatada = formatarDataExtenso(ctData);
-  const cidadeData = `São Paulo, ${dataFormatada}.`;
-
-  // Template do contrato baseado no modelo Aplauso Jabaquara
-  const contratoTexto = gerarTextoContrato({
-    ctNome, ctCnpj, ctEnd, ctSindico, ctCpf, ctCargo, ctPrazo,
-    cidadeData, parcelas, parcValor, totalFinal, tabelasContrato
-  });
-
-  // Abre modal de saída com o texto
-  document.getElementById('modal-saida-titulo').textContent = 'CONTRATO — ' + ctNome.toUpperCase();
-  document.getElementById('modal-saida-desc').textContent = 'Copie o texto para o Word/Google Docs ou use o botão para baixar o .docx.';
-  document.getElementById('saida-conteudo').textContent = contratoTexto;
-  document.getElementById('btn-saida-pdf').style.display = 'none';
-  document.getElementById('btn-saida-copiar').style.display = 'inline-flex';
-
-  // Adiciona botão para baixar .docx
-  const actionsEl = document.querySelector('#modal-saida .saida-actions');
-  // Remove botão anterior se existir
-  const btnDocx = document.getElementById('btn-baixar-docx');
-  if(btnDocx) btnDocx.remove();
-  const novoBtn = document.createElement('button');
-  novoBtn.id = 'btn-baixar-docx';
-  novoBtn.className = 'btn btn-primary';
-  novoBtn.textContent = '📄 Baixar .docx';
-  novoBtn.onclick = () => baixarContratoDocx(contratoTexto, ctNome);
-  actionsEl.insertBefore(novoBtn, actionsEl.firstChild);
-
-  fecharModal('modal-contrato');
-  abrirModal('modal-saida');
-}
-
-function gerarTextoContrato({ ctNome, ctCnpj, ctEnd, ctSindico, ctCpf, ctCargo, ctPrazo,
-                               cidadeData, parcelas, parcValor, totalFinal, tabelasContrato }) {
-  const valorTotal = fmt(totalFinal);
-  const valorParcela = fmt(parcValor);
-
-  return `Av. Brigadeiro Faria Lima, 1811
-São Paulo, ${cidadeData}
-
-CONTRATO DE PRESTAÇÃO DE SERVIÇOS
-PARA IMPLANTAÇÃO DE SISTEMA DE CFTV E CONTROLE DE ACESSO
-
-CONTRATANTE: ${ctNome}, estabelecida em ${ctEnd||'[ENDEREÇO]'}, titular da inscrição do CNPJ: ${ctCnpj||'[CNPJ]'}, tendo como responsável ${ctSindico}, atualmente na condição de ${ctCargo}, portador(a) do CPF ${ctCpf||'[CPF]'}.
-
-CONTRATADA: SP INFORMÁTICA, estabelecida em Av. Brigadeiro Faria Lima, 1811 - Sala 1119, Jardim Paulistano - SP, CEP 01542-001, titular da inscrição CNPJ: 19.978.943/0001-11.
-
-As partes acima identificadas e qualificadas, doravante denominadas simplesmente como CONTRATADAS e CONTRATANTES, têm entre si ajustadas a prestação de serviços de atendimento no local (ON-SITE) aos equipamentos de CFTV que se regerá pela legislação aplicável e pelas cláusulas e condições seguintes.
-
-1. OBJETO DO CONTRATO
-
-1.1 O objeto deste Contrato é a prestação de serviços técnicos de implantação de sistema de CFTV e Controle de Acesso para o ${ctNome}.
-${tabelasContrato}
-
-2. NATUREZA DE SERVIÇOS
-
-2.1 Durante a vigência deste Contrato, o CONTRATADO prestará, à CONTRATANTE, serviços de implantação de sistema de CFTV e Controle de Acesso nas instalações.
-
-2.2 Entende-se por sistema de CFTV equipamentos de DVR, NVR e câmeras de segurança.
-
-2.3 Entende-se por Controle de Acesso equipamentos de Biometria Facial e/ou Digital para identificação.
-
-3. PRAZO
-
-3.1 A instalação será executada em ${ctPrazo} (${numeroPorExtenso(parseInt(ctPrazo))}) dias úteis em horário comercial nas dependências da CONTRATANTE, salvo quaisquer mudanças climáticas e/ou de força maior que impeçam a realização do mesmo.
-
-3.2 A CONTRATADA não realizará serviços de alvenaria ou elétrica, ficando a cargo da CONTRATANTE tais serviços que se tornem necessários, podendo assim prolongar o prazo estipulado na cláusula 3.1.
-
-4. EXCLUSÕES
-
-4.1 Estarão excluídas dos serviços contratados as seguintes hipóteses:
-
-a) Serviços de natureza elétrica, mecânica ou alvenaria.
-
-b) Serviços cuja execução apresente dificuldade superior à prevista para os equipamentos, em decorrência de alterações introduzidas ou de ligações ou acoplamento de aparelhos ou dispositivos suplementares, anteriormente à celebração deste Contrato à revelia ou contra orientação da CONTRATADA.
-
-4.2 Como a CONTRATADA não realizará quaisquer serviços de alvenaria e/ou estrutural, fica excluída a necessidade de apresentação de ART.
-
-5. DAS RESPONSABILIDADES
-
-5.1 O CONTRATADO tem por responsabilidade a instalação visando o perfeito funcionamento dos equipamentos da CONTRATANTE, evitando: lucros cessantes, interrupção de comercialização e perda de informações comerciais.
-
-5.2 É de responsabilidade do CONTRATANTE manter o bom funcionamento das instalações e o uso adequado dos equipamentos conforme recomendações dos respectivos fabricantes.
-
-6. DISPOSIÇÃO GERAL DE LEI LGPD (LEI Nº 13709/18)
-
-Em decorrência do presente contrato, ficam definidas as partes como agentes de tratamento de Dados Pessoais, figurando a CONTRATANTE como CONTROLADORA e CONTRATADA como OPERADORA, nos termos da LGPD.
-
-O armazenamento de imagens gravadas em DVRs, NVRs e Leitoras Faciais será de responsabilidade da CONTRATANTE, cabendo à CONTRATADA a responsabilidade pela instalação e funcionamento dos equipamentos.
-
-7. DAS PENALIDADES
-
-7.1 Em caso de inadimplemento por parte do CONTRATANTE quanto ao pagamento do serviço prestado, incidirá multa pecuniária de 2%, juros de mora de 1% ao mês e correção monetária.
-
-Parágrafo único. Em caso de cobrança judicial, devem ser acrescidas custas processuais e 20% de honorários advocatícios.
-
-7.2 No caso de não haver o cumprimento de qualquer uma das cláusulas, exceto a 4ª, a parte que não cumpriu deverá pagar uma multa de 10% do valor do contrato para a outra parte.
-
-8. GARANTIA
-
-8.1 Os equipamentos fornecidos terão a garantia dos fabricantes de 01 (um) ano.
-
-8.2 Os serviços executados terão garantia de 01 (um) ano a contar da entrega da obra.
-
-9. PAGAMENTO
-
-9.1 FORMA DE PAGAMENTO: Em ${parcelas} (${numeroPorExtenso(parcelas)}) vezes iguais de ${valorParcela}, sendo a primeira parcela à vista no ato da aprovação. (Pagamento via Boleto Bancário)
-
-Valor total do contrato: ${valorTotal}
-
-10. DOS EMPREGADOS
-
-10.1 A CONTRATADA será a única e exclusiva responsável por todos os empregados que trabalharem na execução do serviço descrito neste contrato, cabendo a ela o cumprimento das obrigações sociais, trabalhistas, previdenciárias e tributárias.
-
-10.2 A CONTRATADA obriga-se a fornecer ao CONTRATANTE listagem com nomes e documentos de identificação de seus funcionários, mantendo-os devidamente uniformizados durante a prestação dos serviços.
-
-11. DISPOSIÇÕES GERAIS
-
-11.1 Não poderá ser invocada como novação ou renúncia a tolerância de qualquer das partes pelo descumprimento de qualquer cláusula deste contrato, permanecendo inalterados todos os direitos e obrigações ora pactuados.
-
-11.2 Fica eleito o foro da comarca de São Paulo, Foro Central da Capital, com exclusão de qualquer outro, por mais privilegiado que seja, para dirimir as dúvidas ou controvérsias decorrentes deste instrumento.
-
-E, por estarem assim ajustadas, obrigando-se por si e por seus sucessores, firmam o presente em duas vias.
-
-
-_____________________________                    _____________________________
-SP INFORMÁTICA                                             ${ctSindico}
-Sival Faria                                                        ${ctNome}`;
-}
-
-function formatarDataExtenso(dateStr) {
-  if(!dateStr) return new Date().toLocaleDateString('pt-BR',{day:'numeric',month:'long',year:'numeric'});
-  const [y,m,d] = dateStr.split('-');
-  const meses = ['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
-  return `${parseInt(d)} de ${meses[parseInt(m)-1]} de ${y}`;
-}
-
-function numeroPorExtenso(n) {
-  const unidades = ['','um','dois','três','quatro','cinco','seis','sete','oito','nove',
-    'dez','onze','doze','treze','quatorze','quinze','dezesseis','dezessete','dezoito','dezenove'];
-  const dezenas = ['','','vinte','trinta','quarenta','cinquenta','sessenta','setenta','oitenta','noventa'];
-  const centenas = ['','cem','duzentos','trezentos','quatrocentos','quinhentos','seiscentos','setecentos','oitocentos','novecentos'];
-  if(n===0) return 'zero';
-  if(n<20) return unidades[n];
-  if(n<100) return dezenas[Math.floor(n/10)]+(n%10?(' e '+unidades[n%10]):'');
-  if(n<1000) return centenas[Math.floor(n/100)]+(n%100?(' e '+numeroPorExtenso(n%100)):'');
-  return n.toString();
-}
-
-function baixarContratoDocx(texto, nomeCondominio) {
-  // Gera um HTML formatado como .doc (abre no Word)
-  const html = `<!DOCTYPE html>
-<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word">
-<head>
-<meta charset="utf-8">
-<style>
-  body { font-family: Arial, sans-serif; font-size: 11pt; line-height: 1.6; margin: 2.5cm; color: #000; }
-  h1 { font-size: 13pt; font-weight: bold; text-align: center; margin: 12pt 0 6pt; }
-  p { margin: 6pt 0; text-align: justify; }
-  .assinaturas { margin-top: 60pt; display: flex; justify-content: space-between; }
-  .linha-ass { border-top: 1px solid #000; width: 220pt; text-align: center; padding-top: 4pt; font-size: 10pt; }
-</style>
-</head>
-<body>
-${texto.split('\n').map(l => {
-  if(l.startsWith('CONTRATO DE') || l.startsWith('PARA IMPLANTAÇÃO')) return `<h1>${l}</h1>`;
-  if(/^\d+\./.test(l)) return `<p><strong>${l}</strong></p>`;
-  if(l.startsWith('a)') || l.startsWith('b)') || l.startsWith('c)')) return `<p style="margin-left:20pt;">${l}</p>`;
-  if(l.trim()==='') return '<br>';
-  return `<p>${l}</p>`;
-}).join('\n')}
-</body>
-</html>`;
-
-  const blob = new Blob(['\uFEFF'+html], {type:'application/msword;charset=utf-8'});
-  const url = URL.createObjectURL(blob);
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = `Contrato_${(nomeCondominio||'SP8').replace(/\s+/g,'_')}_${new Date().toISOString().slice(0,10)}.doc`;
-  a.click();
-  URL.revokeObjectURL(url);
-}
-
 // ==================== VERSÃO ====================
 const APP_VERSAO_KEY = 'sp8_app_versao';
-const VERSAO_BASE = '2.0'; // Firebase
+const VERSAO_BASE = '1.0';
 
 function obterVersao() {
   return localStorage.getItem(APP_VERSAO_KEY) || VERSAO_BASE;
@@ -4240,11 +2113,507 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderDashboard();
   mostrarVersao();
   document.getElementById('f-parcelas')?.addEventListener('input', recalcularTudo);
-  // Firebase é iniciado pelo loader assíncrono após SDK carregar
+  // Firebase iniciado pelo loader após SDK carregar
 });
 
 </script>
+
+<!-- MODAL FIREBASE -->
+<div class="modal-overlay" id="modal-fb-config">
+  <div class="modal" style="max-width:520px;">
+    <h2>&#9729;&#65039; CONFIGURAÇÃO FIREBASE</h2>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--fonte-cond);">Sincronização em tempo real gratuita entre todos os computadores.</p>
+    <details id="guia-firebase" style="margin-bottom:14px;">
+      <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:6px 0;">&#128218; Como criar o projeto Firebase (gratuito, 5 min)</summary>
+      <div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
+        1. Acesse console.firebase.google.com &rarr; Criar projeto &rarr; Nome: SP8 Gerenciador<br>
+        2. Menu lateral &rarr; Firestore Database &rarr; Criar banco de dados &rarr; Modo teste<br>
+        3. &#9881;&#65039; Configurações &rarr; Adicionar app &rarr; &lt;/&gt; &rarr; Registrar<br>
+        4. Copie apiKey e projectId do firebaseConfig e cole abaixo
+      </div>
+    </details>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="campo"><label>API Key</label><input type="text" id="fb-apikey" placeholder="AIzaSy..."></div>
+      <div class="campo"><label>Project ID</label><input type="text" id="fb-projectid" placeholder="sp8-gerenciador-xxxxx"></div>
+    </div>
+    <div id="fb-config-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-fb-config')">Fechar</button>
+      <button class="btn btn-secondary" onclick="fbTestarConexao()">&#128269; Testar</button>
+      <button class="btn btn-danger btn-sm" onclick="fbForcarUpload()">&#11014;&#65039; Forcar Upload</button>
+      <button class="btn btn-primary" onclick="fbSalvarConfig()">&#128190; Salvar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Firebase SDK assíncrono -->
+<script>
+(function() {
+  function carregarSDK() {
+    var s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
+    s1.onload = function() {
+      var s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js';
+      s2.onload = function() {
+        if(typeof fbIniciarAoAbrir === 'function') fbIniciarAoAbrir();
+      };
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  }
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', carregarSDK);
+  } else {
+    setTimeout(carregarSDK, 100);
+  }
+})();
+</script>
+
+<script>
+// ==================== FIREBASE ====================
+var FB_DB = null;
+var FB_CFG_KEY = 'sp8_fb_config';
+var FB_SYNC_KEY = 'sp8_fb_last_sync';
+
+function fbCarregarConfig() {
+  try { return JSON.parse(localStorage.getItem(FB_CFG_KEY) || '{}'); } catch(e) { return {}; }
+}
+
+function fbStatusChip(status, msg) {
+  var dot   = document.getElementById('fb-dot');
+  var label = document.getElementById('fb-label');
+  var btn   = document.getElementById('btn-fb-sync');
+  var cores = { ok:'#16a34a', erro:'#dc2626', sync:'#f59e0b', off:'#94a3b8' };
+  if(dot)   dot.style.background = cores[status] || cores.off;
+  if(label) label.textContent = msg || (status==='ok' ? 'Nuvem' : status==='erro' ? 'Erro' : 'Nuvem');
+  if(btn)   btn.disabled = (status === 'sync');
+}
+
+function fbMsg(tipo, txt) {
+  var el = document.getElementById('fb-config-msg');
+  if(!el) return;
+  el.style.display = 'block';
+  var map = {
+    ok:   'background:#dcfce7;color:#15803d;border:1px solid #86efac',
+    erro: 'background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5',
+    info: 'background:#eff6ff;color:#1e6fd9;border:1px solid #93c5fd'
+  };
+  el.style.cssText += ';border-radius:8px;padding:10px 14px;font-size:13px;' + (map[tipo] || map.info);
+  el.textContent = txt;
+}
+
+function fbIniciar(cfg) {
+  try {
+    if(typeof firebase === 'undefined') { fbStatusChip('erro', 'SDK nao carregado'); return false; }
+    if(!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey:     cfg.apiKey,
+        authDomain: cfg.projectId + '.firebaseapp.com',
+        projectId:  cfg.projectId
+      });
+    }
+    FB_DB = firebase.firestore();
+    FB_DB.enablePersistence({ synchronizeTabs: true }).catch(function() {});
+    fbStatusChip('ok', 'Nuvem');
+    return true;
+  } catch(e) {
+    fbStatusChip('erro', 'Erro: ' + e.message);
+    return false;
+  }
+}
+
+function fbSalvarConfig() {
+  var apiKey    = document.getElementById('fb-apikey').value.trim();
+  var projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha API Key e Project ID.'); return; }
+  localStorage.setItem(FB_CFG_KEY, JSON.stringify({ apiKey: apiKey, projectId: projectId }));
+  fbMsg('ok', 'Configuracao salva! Clique em Nuvem para sincronizar.');
+  fbIniciar({ apiKey: apiKey, projectId: projectId });
+}
+
+function abrirConfigFB() {
+  var cfg = fbCarregarConfig();
+  var ak  = document.getElementById('fb-apikey');
+  var pid = document.getElementById('fb-projectid');
+  var msg = document.getElementById('fb-config-msg');
+  if(ak)  ak.value  = cfg.apiKey    || '';
+  if(pid) pid.value = cfg.projectId || '';
+  if(msg) msg.style.display = 'none';
+  if(cfg.apiKey) { var g = document.getElementById('guia-firebase'); if(g) g.removeAttribute('open'); }
+  abrirModal('modal-fb-config');
+}
+
+function fbTestarConexao() {
+  var apiKey    = document.getElementById('fb-apikey').value.trim();
+  var projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha os campos.'); return; }
+  fbMsg('info', 'Testando...');
+  if(!fbIniciar({ apiKey: apiKey, projectId: projectId })) { fbMsg('erro', 'Falha ao iniciar.'); return; }
+  FB_DB.collection('sp8_config').limit(1).get()
+    .then(function() { fbMsg('ok', 'Firebase OK! Conexao bem-sucedida.'); })
+    .catch(function(e) { fbMsg('erro', 'Erro: ' + e.message); });
+}
+
+function fbSincronizar() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) { abrirConfigFB(); return; }
+  if(!FB_DB && !fbIniciar(cfg)) return;
+  fbStatusChip('sync', 'Sincronizando...');
+  fbCarregarDados(false);
+}
+
+function fbSalvarDados() {
+  if(!FB_DB) return;
+  var payload = {
+    materiais:    state.materiais,
+    orcamentos:   state.orcamentos,
+    versao:       obterVersao(),
+    atualizadoEm: new Date().toISOString()
+  };
+  FB_DB.collection('sp8_dados').doc('principal').set(payload)
+    .then(function() {
+      localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
+      fbStatusChip('ok', 'Nuvem');
+    })
+    .catch(function(e) { fbStatusChip('erro', 'Erro ao salvar'); });
+}
+
+function fbCarregarDados(silencioso) {
+  if(!FB_DB) return;
+  FB_DB.collection('sp8_dados').doc('principal').get()
+    .then(function(doc) {
+      if(!doc.exists) {
+        fbSalvarDados();
+        if(!silencioso) alert('Dados enviados para a nuvem! ' + state.orcamentos.length + ' orcamento(s)');
+        return;
+      }
+      var dados     = doc.data();
+      var tsNuvem   = new Date(dados.atualizadoEm || 0).getTime() || 0;
+      var tsLocal   = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
+      var totalLocal = state.orcamentos.length;
+      var totalNuvem = (dados.orcamentos || []).length;
+
+      if(tsLocal === 0 || totalLocal === 0) {
+        fbAplicarDados(dados, silencioso);
+      } else if(tsNuvem > tsLocal) {
+        fbAplicarDados(dados, silencioso);
+      } else if(tsLocal > tsNuvem || totalLocal > totalNuvem) {
+        fbSalvarDados();
+        if(!silencioso) alert('Dados enviados para a nuvem! ' + totalLocal + ' orcamento(s)');
+      } else {
+        fbStatusChip('ok', 'Nuvem');
+        if(!silencioso) alert('Dados ja sincronizados!');
+      }
+    })
+    .catch(function(e) {
+      fbStatusChip('erro', 'Erro sync');
+      if(!silencioso) alert('Erro na sincronizacao: ' + e.message);
+    });
+}
+
+function fbAplicarDados(dados, silencioso) {
+  state.materiais  = dados.materiais  || state.materiais;
+  state.orcamentos = dados.orcamentos || [];
+  if(dados.versao) localStorage.setItem(APP_VERSAO_KEY, dados.versao);
+  salvarState();
+  mostrarVersao();
+  renderDashboard();
+  localStorage.setItem(FB_SYNC_KEY, dados.atualizadoEm || new Date().toISOString());
+  fbStatusChip('ok', 'Nuvem');
+  if(!silencioso) alert('Dados carregados da nuvem! ' + state.orcamentos.length + ' orcamento(s)');
+}
+
+function fbForcarUpload() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) { alert('Configure o Firebase primeiro.'); return; }
+  if(!FB_DB) fbIniciar(cfg);
+  if(!confirm('Enviar dados DESTE computador para a nuvem?')) return;
+  fbStatusChip('sync', 'Enviando...');
+  localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
+  fbSalvarDados();
+  fecharModal('modal-fb-config');
+  alert('Dados enviados! No outro computador clique em Nuvem para baixar.');
+}
+
+var _fbListener = null;
+function fbIniciarListener() {
+  if(!FB_DB || _fbListener) return;
+  _fbListener = FB_DB.collection('sp8_dados').doc('principal')
+    .onSnapshot(function(doc) {
+      if(!doc.exists) return;
+      var dados   = doc.data();
+      var tsNuvem = new Date(dados.atualizadoEm || 0).getTime() || 0;
+      var tsLocal = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
+      if(tsNuvem > tsLocal + 5000) fbAplicarDados(dados, true);
+    }, function(e) { console.error('FB listener:', e); });
+}
+
+function fbAutoSalvar() {
+  var cfg = fbCarregarConfig();
+  if(FB_DB && cfg.apiKey) fbSalvarDados();
+}
+
+function fbIniciarAoAbrir() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) return;
+  if(fbIniciar(cfg)) {
+    fbCarregarDados(true);
+    setTimeout(fbIniciarListener, 3000);
+  }
+}
+</script>
+
 </body>
 </html>
+
+<!-- MODAL FIREBASE -->
+<div class="modal-overlay" id="modal-fb-config">
+  <div class="modal" style="max-width:520px;">
+    <h2>&#9729;&#65039; CONFIGURAÇÃO FIREBASE</h2>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:16px;font-family:var(--fonte-cond);">Sincronização em tempo real gratuita entre todos os computadores.</p>
+    <details id="guia-firebase" style="margin-bottom:14px;">
+      <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:6px 0;">&#128218; Como criar o projeto Firebase (gratuito, 5 min)</summary>
+      <div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
+        1. Acesse console.firebase.google.com &rarr; Criar projeto &rarr; Nome: SP8 Gerenciador<br>
+        2. Menu lateral &rarr; Firestore Database &rarr; Criar banco de dados &rarr; Modo teste<br>
+        3. &#9881;&#65039; Configurações &rarr; Adicionar app &rarr; &lt;/&gt; &rarr; Registrar<br>
+        4. Copie apiKey e projectId do firebaseConfig e cole abaixo
+      </div>
+    </details>
+    <div style="display:flex;flex-direction:column;gap:12px;">
+      <div class="campo"><label>API Key</label><input type="text" id="fb-apikey" placeholder="AIzaSy..."></div>
+      <div class="campo"><label>Project ID</label><input type="text" id="fb-projectid" placeholder="sp8-gerenciador-xxxxx"></div>
+    </div>
+    <div id="fb-config-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" onclick="fecharModal('modal-fb-config')">Fechar</button>
+      <button class="btn btn-secondary" onclick="fbTestarConexao()">&#128269; Testar</button>
+      <button class="btn btn-danger btn-sm" onclick="fbForcarUpload()">&#11014;&#65039; Forcar Upload</button>
+      <button class="btn btn-primary" onclick="fbSalvarConfig()">&#128190; Salvar</button>
+    </div>
+  </div>
+</div>
+
+
+<!-- Firebase SDK assíncrono -->
+<script>
+(function() {
+  function carregarSDK() {
+    var s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
+    s1.onload = function() {
+      var s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js';
+      s2.onload = function() {
+        if(typeof fbIniciarAoAbrir === 'function') fbIniciarAoAbrir();
+      };
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  }
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', carregarSDK);
+  } else {
+    setTimeout(carregarSDK, 100);
+  }
+})();
+</script>
+
+<script>
+// ==================== FIREBASE ====================
+var FB_DB = null;
+var FB_CFG_KEY = 'sp8_fb_config';
+var FB_SYNC_KEY = 'sp8_fb_last_sync';
+
+function fbCarregarConfig() {
+  try { return JSON.parse(localStorage.getItem(FB_CFG_KEY) || '{}'); } catch(e) { return {}; }
+}
+
+function fbStatusChip(status, msg) {
+  var dot   = document.getElementById('fb-dot');
+  var label = document.getElementById('fb-label');
+  var btn   = document.getElementById('btn-fb-sync');
+  var cores = { ok:'#16a34a', erro:'#dc2626', sync:'#f59e0b', off:'#94a3b8' };
+  if(dot)   dot.style.background = cores[status] || cores.off;
+  if(label) label.textContent = msg || (status==='ok' ? 'Nuvem' : status==='erro' ? 'Erro' : 'Nuvem');
+  if(btn)   btn.disabled = (status === 'sync');
+}
+
+function fbMsg(tipo, txt) {
+  var el = document.getElementById('fb-config-msg');
+  if(!el) return;
+  el.style.display = 'block';
+  var map = {
+    ok:   'background:#dcfce7;color:#15803d;border:1px solid #86efac',
+    erro: 'background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5',
+    info: 'background:#eff6ff;color:#1e6fd9;border:1px solid #93c5fd'
+  };
+  el.style.cssText += ';border-radius:8px;padding:10px 14px;font-size:13px;' + (map[tipo] || map.info);
+  el.textContent = txt;
+}
+
+function fbIniciar(cfg) {
+  try {
+    if(typeof firebase === 'undefined') { fbStatusChip('erro', 'SDK nao carregado'); return false; }
+    if(!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey:     cfg.apiKey,
+        authDomain: cfg.projectId + '.firebaseapp.com',
+        projectId:  cfg.projectId
+      });
+    }
+    FB_DB = firebase.firestore();
+    FB_DB.enablePersistence({ synchronizeTabs: true }).catch(function() {});
+    fbStatusChip('ok', 'Nuvem');
+    return true;
+  } catch(e) {
+    fbStatusChip('erro', 'Erro: ' + e.message);
+    return false;
+  }
+}
+
+function fbSalvarConfig() {
+  var apiKey    = document.getElementById('fb-apikey').value.trim();
+  var projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha API Key e Project ID.'); return; }
+  localStorage.setItem(FB_CFG_KEY, JSON.stringify({ apiKey: apiKey, projectId: projectId }));
+  fbMsg('ok', 'Configuracao salva! Clique em Nuvem para sincronizar.');
+  fbIniciar({ apiKey: apiKey, projectId: projectId });
+}
+
+function abrirConfigFB() {
+  var cfg = fbCarregarConfig();
+  var ak  = document.getElementById('fb-apikey');
+  var pid = document.getElementById('fb-projectid');
+  var msg = document.getElementById('fb-config-msg');
+  if(ak)  ak.value  = cfg.apiKey    || '';
+  if(pid) pid.value = cfg.projectId || '';
+  if(msg) msg.style.display = 'none';
+  if(cfg.apiKey) { var g = document.getElementById('guia-firebase'); if(g) g.removeAttribute('open'); }
+  abrirModal('modal-fb-config');
+}
+
+function fbTestarConexao() {
+  var apiKey    = document.getElementById('fb-apikey').value.trim();
+  var projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha os campos.'); return; }
+  fbMsg('info', 'Testando...');
+  if(!fbIniciar({ apiKey: apiKey, projectId: projectId })) { fbMsg('erro', 'Falha ao iniciar.'); return; }
+  FB_DB.collection('sp8_config').limit(1).get()
+    .then(function() { fbMsg('ok', 'Firebase OK! Conexao bem-sucedida.'); })
+    .catch(function(e) { fbMsg('erro', 'Erro: ' + e.message); });
+}
+
+function fbSincronizar() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) { abrirConfigFB(); return; }
+  if(!FB_DB && !fbIniciar(cfg)) return;
+  fbStatusChip('sync', 'Sincronizando...');
+  fbCarregarDados(false);
+}
+
+function fbSalvarDados() {
+  if(!FB_DB) return;
+  var payload = {
+    materiais:    state.materiais,
+    orcamentos:   state.orcamentos,
+    versao:       obterVersao(),
+    atualizadoEm: new Date().toISOString()
+  };
+  FB_DB.collection('sp8_dados').doc('principal').set(payload)
+    .then(function() {
+      localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
+      fbStatusChip('ok', 'Nuvem');
+    })
+    .catch(function(e) { fbStatusChip('erro', 'Erro ao salvar'); });
+}
+
+function fbCarregarDados(silencioso) {
+  if(!FB_DB) return;
+  FB_DB.collection('sp8_dados').doc('principal').get()
+    .then(function(doc) {
+      if(!doc.exists) {
+        fbSalvarDados();
+        if(!silencioso) alert('Dados enviados para a nuvem! ' + state.orcamentos.length + ' orcamento(s)');
+        return;
+      }
+      var dados     = doc.data();
+      var tsNuvem   = new Date(dados.atualizadoEm || 0).getTime() || 0;
+      var tsLocal   = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
+      var totalLocal = state.orcamentos.length;
+      var totalNuvem = (dados.orcamentos || []).length;
+
+      if(tsLocal === 0 || totalLocal === 0) {
+        fbAplicarDados(dados, silencioso);
+      } else if(tsNuvem > tsLocal) {
+        fbAplicarDados(dados, silencioso);
+      } else if(tsLocal > tsNuvem || totalLocal > totalNuvem) {
+        fbSalvarDados();
+        if(!silencioso) alert('Dados enviados para a nuvem! ' + totalLocal + ' orcamento(s)');
+      } else {
+        fbStatusChip('ok', 'Nuvem');
+        if(!silencioso) alert('Dados ja sincronizados!');
+      }
+    })
+    .catch(function(e) {
+      fbStatusChip('erro', 'Erro sync');
+      if(!silencioso) alert('Erro na sincronizacao: ' + e.message);
+    });
+}
+
+function fbAplicarDados(dados, silencioso) {
+  state.materiais  = dados.materiais  || state.materiais;
+  state.orcamentos = dados.orcamentos || [];
+  if(dados.versao) localStorage.setItem(APP_VERSAO_KEY, dados.versao);
+  salvarState();
+  mostrarVersao();
+  renderDashboard();
+  localStorage.setItem(FB_SYNC_KEY, dados.atualizadoEm || new Date().toISOString());
+  fbStatusChip('ok', 'Nuvem');
+  if(!silencioso) alert('Dados carregados da nuvem! ' + state.orcamentos.length + ' orcamento(s)');
+}
+
+function fbForcarUpload() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) { alert('Configure o Firebase primeiro.'); return; }
+  if(!FB_DB) fbIniciar(cfg);
+  if(!confirm('Enviar dados DESTE computador para a nuvem?')) return;
+  fbStatusChip('sync', 'Enviando...');
+  localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
+  fbSalvarDados();
+  fecharModal('modal-fb-config');
+  alert('Dados enviados! No outro computador clique em Nuvem para baixar.');
+}
+
+var _fbListener = null;
+function fbIniciarListener() {
+  if(!FB_DB || _fbListener) return;
+  _fbListener = FB_DB.collection('sp8_dados').doc('principal')
+    .onSnapshot(function(doc) {
+      if(!doc.exists) return;
+      var dados   = doc.data();
+      var tsNuvem = new Date(dados.atualizadoEm || 0).getTime() || 0;
+      var tsLocal = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
+      if(tsNuvem > tsLocal + 5000) fbAplicarDados(dados, true);
+    }, function(e) { console.error('FB listener:', e); });
+}
+
+function fbAutoSalvar() {
+  var cfg = fbCarregarConfig();
+  if(FB_DB && cfg.apiKey) fbSalvarDados();
+}
+
+function fbIniciarAoAbrir() {
+  var cfg = fbCarregarConfig();
+  if(!cfg.apiKey) return;
+  if(fbIniciar(cfg)) {
+    fbCarregarDados(true);
+    setTimeout(fbIniciarListener, 3000);
+  }
+}
+</script>
+
 </body>
 </html>

@@ -2050,33 +2050,37 @@ function importarDados(input) {
   reader.onload = e => {
     try {
       const dados = JSON.parse(e.target.result);
-      // Validação básica
-      if(!dados.sp8_materiais || !Array.isArray(dados.sp8_materiais)) {
-        alert('❌ Arquivo inválido. Certifique-se de importar um backup gerado pelo SP8 Gerenciador.');
+
+      // Aceita formato antigo (sp8_materiais) e novo (materiais)
+      const materiais  = dados.sp8_materiais  || dados.materiais;
+      const orcamentos = dados.sp8_orcamentos || dados.orcamentos || [];
+      const versao     = dados.sp8_versao     || dados.versao;
+      const exportadoEm= dados.sp8_exportado_em || dados.atualizadoEm;
+
+      if(!materiais || !Array.isArray(materiais)) {
+        alert('Arquivo invalido. Certifique-se de importar um backup gerado pelo SP8 Gerenciador.');
         return;
       }
-      const totalOrc = dados.sp8_orcamentos?.length || 0;
-      const totalMat = dados.sp8_materiais?.length || 0;
+
       const confirmar = confirm(
-        `📥 Importar backup?\n\n` +
-        `Versão: ${dados.sp8_versao || '?'}\n` +
-        `Exportado em: ${dados.sp8_exportado_em || '?'}\n` +
-        `Orçamentos: ${totalOrc}\n` +
-        `Materiais: ${totalMat}\n\n` +
-        `⚠️ Os dados atuais serão SUBSTITUÍDOS. Continuar?`
+        'Importar backup?\n\n' +
+        'Versao: ' + (versao || '?') + '\n' +
+        'Exportado em: ' + (exportadoEm || '?') + '\n' +
+        'Orcamentos: ' + orcamentos.length + '\n' +
+        'Materiais: ' + materiais.length + '\n\n' +
+        'Os dados atuais serao SUBSTITUIDOS. Continuar?'
       );
       if(!confirmar) { input.value=''; return; }
 
-      // Aplica os dados
-      state.materiais = dados.sp8_materiais;
-      state.orcamentos = dados.sp8_orcamentos || [];
-      if(dados.sp8_versao) localStorage.setItem(APP_VERSAO_KEY, dados.sp8_versao);
+      state.materiais  = materiais;
+      state.orcamentos = orcamentos;
+      if(versao) localStorage.setItem(APP_VERSAO_KEY, versao);
       salvarState();
       mostrarVersao();
       renderDashboard();
-      alert(`✅ Backup importado com sucesso!\n${totalOrc} orçamento(s) e ${totalMat} material(is) carregados.`);
+      alert('Backup importado!\n' + orcamentos.length + ' orcamento(s) e ' + materiais.length + ' material(is) carregados.\n\nClique em Nuvem para enviar ao Firebase.');
     } catch(err) {
-      alert('❌ Erro ao ler o arquivo: ' + err.message);
+      alert('Erro ao ler o arquivo: ' + err.message);
     } finally {
       input.value = '';
     }

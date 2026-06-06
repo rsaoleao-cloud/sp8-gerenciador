@@ -2201,7 +2201,6 @@ function fbIniciar(cfg) {
       storageBucket: cfg.projectId + '.appspot.com'
     });
     FB_DB = firebase.firestore();
-    FB_DB.settings({ experimentalForceLongPolling: true, merge: true });
     FB_DB.enablePersistence({ synchronizeTabs: true }).catch(function() {});
     fbStatusChip('ok', 'Nuvem');
     return true;

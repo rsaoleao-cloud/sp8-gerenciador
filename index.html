@@ -603,10 +603,30 @@
   ::-webkit-scrollbar-track{background:var(--bg2)}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
-</head>
+<!-- Firebase SDK — carregado de forma assíncrona para não bloquear o app -->
+<script>
+(function() {
+  function carregarFirebase() {
+    var s1 = document.createElement('script');
+    s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
+    s1.onload = function() {
+      var s2 = document.createElement('script');
+      s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js';
+      s2.onload = function() {
+        // Firebase pronto — inicializa se já tiver configuração salva
+        if(typeof fbIniciarAoAbrir === 'function') fbIniciarAoAbrir();
+      };
+      document.head.appendChild(s2);
+    };
+    document.head.appendChild(s1);
+  }
+  if(document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', carregarFirebase);
+  } else {
+    carregarFirebase();
+  }
+})();
+</script>
 <body>
 
 <div class="topbar">
@@ -4220,8 +4240,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderDashboard();
   mostrarVersao();
   document.getElementById('f-parcelas')?.addEventListener('input', recalcularTudo);
-  // Inicializa Firebase e sincroniza ao abrir
-  fbIniciarAoAbrir();
+  // Firebase é iniciado pelo loader assíncrono após SDK carregar
 });
 
 </script>

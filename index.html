@@ -1063,6 +1063,7 @@
     <div class="modal-actions">
       <button class="btn btn-secondary" onclick="fecharModal('modal-gist-config')">Fechar</button>
       <button class="btn btn-secondary" onclick="testarConexaoGist()">🔍 Testar Conexão</button>
+      <button class="btn btn-danger btn-sm" onclick="forcarUploadGist()" title="Força envio dos dados locais para a nuvem, ignorando comparação de datas">⬆️ Forçar Upload</button>
       <button class="btn btn-primary" onclick="salvarConfigGist()">💾 Salvar Configuração</button>
     </div>
   </div>
@@ -2773,6 +2774,23 @@ const GIST_FILENAME   = 'sp8_gerenciador_backup.json';
 
 function carregarConfigGist() {
   try { return JSON.parse(localStorage.getItem(GIST_CONFIG_KEY)||'{}'); } catch { return {}; }
+}
+
+async function forcarUploadGist() {
+  const cfg = carregarConfigGist();
+  if(!cfg.token||!cfg.gistId) { alert('Configure o token e ID do Gist primeiro.'); return; }
+  if(!confirm(`⬆️ Forçar upload?\n\nIsso vai enviar os dados DESTE computador para a nuvem, substituindo tudo que está lá.\n\nContinuar?`)) return;
+  atualizarStatusGist('sync');
+  try {
+    // Zera o timestamp para forçar o sistema a reconhecer como mais recente
+    localStorage.setItem('sp8_gist_last_sync', new Date().toISOString());
+    await salvarNoGist(cfg);
+    fecharModal('modal-gist-config');
+    alert('✅ Dados enviados para a nuvem com sucesso!\n\nNo outro computador clique em GitHub para baixar.');
+  } catch(e) {
+    atualizarStatusGist('erro');
+    alert(`❌ Erro: ${e.message}`);
+  }
 }
 
 function salvarConfigGist() {

@@ -603,6 +603,9 @@
   ::-webkit-scrollbar-track{background:var(--bg2)}
   ::-webkit-scrollbar-thumb{background:var(--border2);border-radius:3px}
 </style>
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js"></script>
 </head>
 <body>
 
@@ -626,11 +629,11 @@
     <button class="nav-btn" onclick="document.getElementById('input-importar').click()" title="Importar backup JSON local">📥 Importar</button>
     <input type="file" id="input-importar" accept=".json" style="display:none;" onchange="importarDados(this)">
     <div style="width:1px;background:var(--border);margin:10px 4px;"></div>
-    <button class="nav-btn" id="btn-gist-sync" onclick="sincronizarGist()" title="Salvar e carregar dados do GitHub">
-      <span id="gist-dot" style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;margin-right:5px;transition:background .3s;"></span>
-      <span id="gist-label">GitHub</span>
+    <button class="nav-btn" id="btn-fb-sync" onclick="fbSincronizar()" title="Sincronizar com Firebase">
+      <span id="fb-dot" style="width:7px;height:7px;border-radius:50%;background:#94a3b8;display:inline-block;margin-right:5px;transition:background .3s;"></span>
+      <span id="fb-label">☁ Nuvem</span>
     </button>
-    <button class="nav-btn" onclick="abrirConfigGist()" title="Configurar GitHub Gist" style="padding:7px 10px;">⚙️</button>
+    <button class="nav-btn" onclick="abrirConfigFB()" title="Configurar Firebase" style="padding:7px 10px;">⚙️</button>
   </nav>
 </div>
 
@@ -999,72 +1002,62 @@
   </div>
 </div>
 
-<!-- MODAL CONFIGURAÇÃO GITHUB GIST -->
-<div class="modal-overlay" id="modal-gist-config">
+<!-- MODAL CONFIGURAÇÃO FIREBASE -->
+<div class="modal-overlay" id="modal-fb-config">
   <div class="modal" style="max-width:560px;">
-    <h2>⚙️ CONFIGURAÇÃO GITHUB</h2>
-    <p style="font-size:12px;color:var(--text3);margin-bottom:20px;font-family:var(--fonte-cond);">
-      Configure uma vez — dados sincronizados em qualquer computador via GitHub Gist.
+    <h2>☁️ CONFIGURAÇÃO FIREBASE</h2>
+    <p style="font-size:12px;color:var(--text3);margin-bottom:18px;font-family:var(--fonte-cond);">
+      Sincronização em tempo real gratuita. Configure uma vez em cada computador.
     </p>
 
-    <!-- Guia passo a passo -->
-    <details style="margin-bottom:18px;" id="guia-github" open>
-      <summary style="font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;padding:8px 0;user-select:none;">
-        📖 Como criar o token (5 minutos, gratuito)
+    <!-- Guia -->
+    <details id="guia-firebase" style="margin-bottom:16px;">
+      <summary style="font-size:12px;color:var(--accent);cursor:pointer;font-weight:600;padding:6px 0;">
+        📖 Como criar o projeto Firebase (gratuito, 5 minutos)
       </summary>
-      <div style="margin-top:10px;background:var(--bg3);border-radius:8px;padding:14px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
-        <div style="display:flex;flex-direction:column;gap:10px;">
+      <div style="margin-top:8px;background:var(--bg3);border-radius:8px;padding:12px;font-size:12px;line-height:1.9;border:1px solid var(--border);">
+        <div style="display:flex;flex-direction:column;gap:8px;">
           <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">1</span>
-            <span>Acesse <a href="https://github.com" target="_blank" style="color:var(--accent);">github.com</a> e crie uma conta gratuita (ou faça login)</span>
+            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">1</span>
+            <span>Acesse <a href="https://console.firebase.google.com" target="_blank" style="color:var(--accent);">console.firebase.google.com</a> → <strong>Criar um projeto</strong> → Nome: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">SP8 Gerenciador</code> → Desativar Analytics → Criar</span>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">2</span>
-            <span>Clique na sua foto (canto superior direito) → <strong>Settings</strong></span>
+            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">2</span>
+            <span>Menu lateral → <strong>Firestore Database</strong> → <strong>Criar banco de dados</strong> → Modo teste → Região <strong>us-east1</strong> → Ativar</span>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">3</span>
-            <span>No menu lateral, role até o fim → <strong>Developer settings</strong> → <strong>Personal access tokens</strong> → <strong>Tokens (classic)</strong></span>
+            <span style="background:var(--accent);color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">3</span>
+            <span>⚙️ <strong>Configurações do projeto</strong> → <strong>Adicionar app</strong> → ícone <strong>&lt;/&gt;</strong> → Nome: SP8 → Registrar</span>
           </div>
           <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:var(--accent);color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">4</span>
-            <span>Clique em <strong>Generate new token (classic)</strong> → dê um nome: <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">SP8 Gerenciador</code> → marque apenas <strong>gist</strong> → clique <strong>Generate token</strong></span>
+            <span style="background:#16a34a;color:#fff;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;flex-shrink:0;">4</span>
+            <span>Copie os valores do bloco <code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">firebaseConfig</code> e cole nos campos abaixo</span>
           </div>
-          <div style="display:flex;gap:10px;align-items:flex-start;">
-            <span style="background:#16a34a;color:#fff;border-radius:50%;width:20px;height:20px;display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;flex-shrink:0;">5</span>
-            <span>Copie o token gerado (<code style="background:#e2e8f0;padding:1px 5px;border-radius:3px;">ghp_...</code>) e cole abaixo</span>
-          </div>
-        </div>
-        <div style="margin-top:10px;padding:8px 10px;background:#fefce8;border:1px solid #fde68a;border-radius:6px;font-size:11px;color:#78350f;">
-          ⚠️ Copie o token imediatamente — o GitHub só exibe uma vez. Se perder, gere outro.
         </div>
       </div>
     </details>
 
-    <div style="display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;flex-direction:column;gap:12px;">
       <div class="campo">
-        <label>🔑 Personal Access Token (ghp_...)</label>
-        <div style="display:flex;gap:8px;">
-          <input type="password" id="gist-token" placeholder="ghp_xxxxxxxxxxxxxxxxxxxxxxxx"
-            autocomplete="off" style="flex:1;">
-          <button class="btn btn-secondary btn-sm" onclick="toggleSenhaGist()" id="btn-show-gist-token">👁</button>
-        </div>
-        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Salvo só neste navegador. Nunca enviado a terceiros.</span>
+        <label>API Key</label>
+        <input type="text" id="fb-apikey" placeholder="AIzaSy...">
       </div>
       <div class="campo">
-        <label>ID do Gist (deixe vazio na primeira vez)</label>
-        <input type="text" id="gist-id" placeholder="Será criado automaticamente na primeira sincronização">
-        <span style="font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">Após criar, copie este ID para usar em outros computadores.</span>
+        <label>Project ID</label>
+        <input type="text" id="fb-projectid" placeholder="sp8-gerenciador">
+      </div>
+      <div style="background:var(--bg3);border:1px solid var(--border);border-radius:6px;padding:10px 14px;font-size:11px;color:var(--text3);font-family:var(--fonte-cond);">
+        💡 Esses dois campos são suficientes. Os demais valores do firebaseConfig são gerados automaticamente.
       </div>
     </div>
 
-    <div id="gist-config-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
+    <div id="fb-config-msg" style="display:none;margin-top:12px;padding:10px 14px;border-radius:8px;font-size:13px;"></div>
 
     <div class="modal-actions">
-      <button class="btn btn-secondary" onclick="fecharModal('modal-gist-config')">Fechar</button>
-      <button class="btn btn-secondary" onclick="testarConexaoGist()">🔍 Testar Conexão</button>
-      <button class="btn btn-danger btn-sm" onclick="forcarUploadGist()" title="Força envio dos dados locais para a nuvem, ignorando comparação de datas">⬆️ Forçar Upload</button>
-      <button class="btn btn-primary" onclick="salvarConfigGist()">💾 Salvar Configuração</button>
+      <button class="btn btn-secondary" onclick="fecharModal('modal-fb-config')">Fechar</button>
+      <button class="btn btn-secondary" onclick="fbTestarConexao()">🔍 Testar</button>
+      <button class="btn btn-danger btn-sm" onclick="fbForcarUpload()">⬆️ Forçar Upload</button>
+      <button class="btn btn-primary" onclick="fbSalvarConfig()">💾 Salvar</button>
     </div>
   </div>
 </div>
@@ -2146,11 +2139,8 @@ function salvarOrcamento() {
   state._novoNumero = null;
   salvarState();
   alert(`✅ Orçamento #${numero} salvo! (v${obterVersao()})`);
-  // Sobe automaticamente para a nuvem se configurado
-  const cfg = carregarConfigGist();
-  if(cfg.token && cfg.gistId) {
-    salvarNoGist(cfg).catch(()=>{});
-  }
+  // Sobe automaticamente para a nuvem
+  fbAutoSalvar();
 }
 
 // ==================== GERAR ESCOPO ====================
@@ -2686,6 +2676,7 @@ function salvarMaterial() {
     state.materiais.push(novoMat);
   }
   salvarState();
+  fbAutoSalvar();
   fecharModal('modal-material');
   renderMateriais();
 }
@@ -2768,396 +2759,254 @@ function dragEnd(e) {
   });
 }
 
-// ==================== GITHUB GIST — SINCRONIZAÇÃO ====================
-const GIST_CONFIG_KEY = 'sp8_gist_config';
-const GIST_FILENAME   = 'sp8_gerenciador_backup.json';
+// ==================== FIREBASE — SINCRONIZAÇÃO ====================
+const FB_CFG_KEY = 'sp8_fb_config';
+var FB = null;
 
-function carregarConfigGist() {
-  try { return JSON.parse(localStorage.getItem(GIST_CONFIG_KEY)||'{}'); } catch { return {}; }
+function fbCarregarConfig() {
+  try { return JSON.parse(localStorage.getItem(FB_CFG_KEY)||'{}'); } catch { return {}; }
 }
 
-async function forcarUploadGist() {
-  const cfg = carregarConfigGist();
-  if(!cfg.token||!cfg.gistId) { alert('Configure o token e ID do Gist primeiro.'); return; }
-  if(!confirm(`⬆️ Forçar upload?\n\nIsso vai enviar os dados DESTE computador para a nuvem, substituindo tudo que está lá.\n\nContinuar?`)) return;
-  atualizarStatusGist('sync');
-  try {
-    // Zera o timestamp para forçar o sistema a reconhecer como mais recente
-    localStorage.setItem('sp8_gist_last_sync', new Date().toISOString());
-    await salvarNoGist(cfg);
-    fecharModal('modal-gist-config');
-    alert('✅ Dados enviados para a nuvem com sucesso!\n\nNo outro computador clique em GitHub para baixar.');
-  } catch(e) {
-    atualizarStatusGist('erro');
-    alert(`❌ Erro: ${e.message}`);
-  }
+function fbSalvarConfig() {
+  const apiKey    = document.getElementById('fb-apikey').value.trim();
+  const projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey||!projectId) { fbMsgConfig('erro','Preencha API Key e Project ID.'); return; }
+  localStorage.setItem(FB_CFG_KEY, JSON.stringify({ apiKey, projectId }));
+  fbMsgConfig('ok','✅ Configuração salva! Clique em ☁ Nuvem para sincronizar.');
+  fbIniciar({ apiKey, projectId });
 }
 
-function salvarConfigGist() {
-  const token  = document.getElementById('gist-token').value.trim();
-  const gistId = document.getElementById('gist-id').value.trim();
-  if(!token) { mostrarMsgGistConfig('erro','Informe o token.'); return; }
-  localStorage.setItem(GIST_CONFIG_KEY, JSON.stringify({ token, gistId }));
-  mostrarMsgGistConfig('ok','✅ Configuração salva! Clique em "GitHub" na barra superior para sincronizar.');
-  atualizarStatusGist('ok');
+function abrirConfigFB() {
+  const cfg = fbCarregarConfig();
+  document.getElementById('fb-apikey').value    = cfg.apiKey||'';
+  document.getElementById('fb-projectid').value = cfg.projectId||'';
+  document.getElementById('fb-config-msg').style.display = 'none';
+  if(cfg.apiKey) document.getElementById('guia-firebase')?.removeAttribute('open');
+  abrirModal('modal-fb-config');
 }
 
-function abrirConfigGist() {
-  const cfg = carregarConfigGist();
-  const t = document.getElementById('gist-token');
-  const g = document.getElementById('gist-id');
-  if(t) t.value = cfg.token||'';
-  if(g) g.value = cfg.gistId||'';
-  document.getElementById('gist-config-msg').style.display='none';
-  if(cfg.token) document.getElementById('guia-github')?.removeAttribute('open');
-
-  // Mostra tamanho atual do backup
-  const payload = montarPayloadBackup();
-  const json = JSON.stringify(payload);
-  const kb = Math.round(json.length/1024);
-  const pct = Math.min(100, Math.round(json.length/(1024*1024)*100));
-  const cor = pct > 80 ? '#dc2626' : pct > 50 ? '#f59e0b' : '#16a34a';
-
-  const msg = document.getElementById('gist-config-msg');
-  if(msg) {
-    msg.style.display = 'block';
-    msg.style.background = '#f8faff';
-    msg.style.color = '#475569';
-    msg.style.border = '1px solid #e2e8f0';
-    const ultima = localStorage.getItem('sp8_gist_last_sync')||'nunca';
-    msg.innerHTML = `
-      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
-        <span>Tamanho do backup:</span>
-        <strong style="color:${cor};">${kb} KB de 1.024 KB</strong>
-      </div>
-      <div style="background:#e2e8f0;border-radius:20px;height:6px;overflow:hidden;">
-        <div style="background:${cor};width:${pct}%;height:100%;border-radius:20px;transition:width .3s;"></div>
-      </div>
-      <div style="font-size:11px;color:#94a3b8;margin-top:6px;">Último sync: ${ultima}${cfg.gistId?'  ·  Gist ID: '+cfg.gistId.slice(0,8)+'...':''}</div>
-    `;
-  }
-  abrirModal('modal-gist-config');
-}
-
-function toggleSenhaGist() {
-  const inp = document.getElementById('gist-token');
-  if(inp) inp.type = inp.type==='password'?'text':'password';
-}
-
-function mostrarMsgGistConfig(tipo, txt) {
-  const el = document.getElementById('gist-config-msg');
+function fbMsgConfig(tipo, txt) {
+  const el = document.getElementById('fb-config-msg');
   if(!el) return;
   el.style.display = 'block';
-  const cores = { ok:'#dcfce7', erro:'#fee2e2', info:'#eff6ff' };
-  const textos = { ok:'#15803d', erro:'#b91c1c', info:'#1e6fd9' };
-  const bordas = { ok:'#86efac', erro:'#fca5a5', info:'#93c5fd' };
-  el.style.background = cores[tipo]||cores.info;
-  el.style.color = textos[tipo]||textos.info;
-  el.style.border = `1px solid ${bordas[tipo]||bordas.info}`;
+  const map = {
+    ok:   { bg:'#dcfce7', cor:'#15803d', borda:'#86efac' },
+    erro: { bg:'#fee2e2', cor:'#b91c1c', borda:'#fca5a5' },
+    info: { bg:'#eff6ff', cor:'#1e6fd9', borda:'#93c5fd' },
+  };
+  const s = map[tipo]||map.info;
+  el.style.background = s.bg; el.style.color = s.cor;
+  el.style.border = `1px solid ${s.borda}`;
   el.textContent = txt;
 }
 
-function atualizarStatusGist(status) {
-  const dot   = document.getElementById('gist-dot');
-  const label = document.getElementById('gist-label');
-  const btn   = document.getElementById('btn-gist-sync');
+function fbStatusChip(status, msg) {
+  const dot   = document.getElementById('fb-dot');
+  const label = document.getElementById('fb-label');
+  const btn   = document.getElementById('btn-fb-sync');
   const cores = { ok:'#16a34a', erro:'#dc2626', sync:'#f59e0b', off:'#94a3b8' };
   if(dot)   dot.style.background = cores[status]||cores.off;
-  if(label) label.textContent = status==='sync'?'Sincronizando...':status==='ok'?'GitHub ✓':status==='erro'?'GitHub ✗':'GitHub';
-  if(btn)   btn.disabled = status==='sync';
+  if(label) label.textContent = msg || (status==='ok'?'☁ Nuvem ✓':status==='erro'?'☁ Erro':'☁ Nuvem');
+  if(btn)   btn.disabled = (status==='sync');
 }
 
-async function testarConexaoGist() {
-  const token = document.getElementById('gist-token').value.trim();
-  if(!token) { mostrarMsgGistConfig('erro','Informe o token primeiro.'); return; }
-  mostrarMsgGistConfig('info','🔍 Testando conexão...');
+function fbIniciar(cfg) {
   try {
-    const res = await fetch('https://api.github.com/user', {
-      headers: { 'Authorization': `token ${token}`, 'Accept': 'application/vnd.github.v3+json' }
-    });
-    if(!res.ok) throw new Error(`HTTP ${res.status}`);
-    const user = await res.json();
-    mostrarMsgGistConfig('ok', `✅ Conectado como @${user.login} (${user.name||''}). Token válido!`);
+    if(typeof firebase === 'undefined') {
+      fbStatusChip('erro','SDK não carregado');
+      return false;
+    }
+    if(!firebase.apps.length) {
+      firebase.initializeApp({
+        apiKey:      cfg.apiKey,
+        authDomain:  cfg.projectId + '.firebaseapp.com',
+        projectId:   cfg.projectId,
+      });
+    }
+    FB = firebase.firestore();
+    // Habilita persistência offline
+    FB.enablePersistence({ synchronizeTabs: true }).catch(()=>{});
+    fbStatusChip('ok','☁ Nuvem ✓');
+    return true;
   } catch(e) {
-    mostrarMsgGistConfig('erro', `❌ Falha: ${e.message}. Verifique o token.`);
+    console.error('Firebase init error:', e);
+    fbStatusChip('erro', '☁ Erro: ' + e.message);
+    return false;
   }
 }
 
-async function sincronizarGist() {
-  const cfg = carregarConfigGist();
-  if(!cfg.token) {
-    abrirConfigGist();
-    return;
-  }
-
-  // Verifica tamanho do payload antes de enviar (sem fotos)
-  const payload = montarPayloadNuvem();
-  const json    = JSON.stringify(payload);
-  const tamanhoKB = Math.round(json.length / 1024);
-  const tamanhoMB = (json.length / (1024*1024)).toFixed(2);
-
-  if(json.length > 1024*1024) {
-    // Acima de 1MB — bloqueia e sugere solução
-    alert(
-      `⚠️ Backup muito grande para o GitHub Gist!\n\n` +
-      `Tamanho atual: ${tamanhoMB} MB\n` +
-      `Limite do Gist: 1 MB\n\n` +
-      `Isso geralmente acontece por excesso de fotos.\n\n` +
-      `Solução: use 📤 Exportar para salvar um backup local completo,\n` +
-      `e remova algumas fotos dos itens para reduzir o tamanho.`
-    );
-    atualizarStatusGist('erro');
-    return;
-  }
-
-  if(json.length > 800*1024) {
-    // Entre 800KB e 1MB — avisa mas permite continuar
-    const continuar = confirm(
-      `⚠️ Backup grande: ${tamanhoMB} MB (limite: 1 MB)\n\n` +
-      `Está próximo do limite do GitHub Gist.\n` +
-      `Recomendado remover algumas fotos para liberar espaço.\n\n` +
-      `Deseja sincronizar assim mesmo?`
-    );
-    if(!continuar) return;
-  }
-
-  atualizarStatusGist('sync');
+async function fbTestarConexao() {
+  const apiKey    = document.getElementById('fb-apikey').value.trim();
+  const projectId = document.getElementById('fb-projectid').value.trim();
+  if(!apiKey||!projectId) { fbMsgConfig('erro','Preencha os campos.'); return; }
+  fbMsgConfig('info','🔍 Testando...');
   try {
-    if(cfg.gistId) {
-      await carregarDoGist(cfg, false);
-    } else {
-      await criarGist(cfg);
-    }
+    if(!fbIniciar({ apiKey, projectId })) { fbMsgConfig('erro','Falha ao iniciar Firebase.'); return; }
+    await FB.collection('sp8_config').limit(1).get();
+    fbMsgConfig('ok','✅ Firebase OK! Conexão bem-sucedida.');
   } catch(e) {
-    atualizarStatusGist('erro');
-    alert(`❌ Erro na sincronização GitHub:\n${e.message}`);
+    fbMsgConfig('erro', '❌ Erro: ' + e.message);
   }
 }
 
-async function criarGist(cfg) {
-  // Avisa antes de criar para evitar criar duplicado acidentalmente
-  const confirmar = confirm(
-    `⚠️ Atenção!\n\n` +
-    `Isso vai criar um NOVO Gist do zero.\n\n` +
-    `Se você já tem dados em outro computador, cancele e informe o ID do Gist existente no campo ⚙️.\n\n` +
-    `Deseja criar um novo Gist?`
-  );
-  if(!confirmar) { atualizarStatusGist('off'); return; }
-
-  const payload = montarPayloadNuvem(); // sem fotos
-  const res = await fetch('https://api.github.com/gists', {
-    method: 'POST',
-    headers: {
-      'Authorization': `token ${cfg.token}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      description: 'SP8 Gerenciador — Backup de Dados',
-      public: false,
-      files: { [GIST_FILENAME]: { content: JSON.stringify(payload, null, 2) } }
-    })
-  });
-  if(!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || `HTTP ${res.status}`);
+async function fbSincronizar() {
+  if(!FB) {
+    const cfg = fbCarregarConfig();
+    if(!cfg.apiKey) { abrirConfigFB(); return; }
+    if(!fbIniciar(cfg)) return;
   }
-  const gist = await res.json();
-  // Salva o ID do Gist criado
-  cfg.gistId = gist.id;
-  localStorage.setItem(GIST_CONFIG_KEY, JSON.stringify(cfg));
-  // Atualiza campo na tela se modal estiver aberto
-  const inp = document.getElementById('gist-id');
-  if(inp) inp.value = gist.id;
-
-  localStorage.setItem('sp8_gist_last_sync', new Date().toLocaleString('pt-BR'));
-  atualizarStatusGist('ok');
-  alert(`✅ Gist criado com sucesso!\n\nID: ${gist.id}\n\nCopie este ID para usar em outros computadores (campo "ID do Gist" nas configurações).`);
+  fbStatusChip('sync', '↻ Sincronizando...');
+  try {
+    await fbCarregarDados();
+  } catch(e) {
+    fbStatusChip('erro', '☁ Erro sync');
+    console.error('FB sync error:', e);
+    alert('❌ Erro na sincronização:
+' + e.message);
+  }
 }
 
-async function salvarNoGist(cfg) {
-  const payload = montarPayloadNuvem(); // sem fotos
-  const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
-    method: 'PATCH',
-    headers: {
-      'Authorization': `token ${cfg.token}`,
-      'Accept': 'application/vnd.github.v3+json',
-      'Content-Type': 'application/json',
-    },
-    body: JSON.stringify({
-      files: { [GIST_FILENAME]: { content: JSON.stringify(payload, null, 2) } }
-    })
-  });
-  if(!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || `HTTP ${res.status}`);
+async function fbSalvarDados() {
+  if(!FB) return;
+  try {
+    const payload = {
+      materiais:    state.materiais,
+      orcamentos:   orcamentosSemFotos(state.orcamentos),
+      versao:       obterVersao(),
+      atualizadoEm: new Date().toISOString(),
+    };
+    await FB.collection('sp8_dados').doc('principal').set(payload);
+    fbStatusChip('ok', '☁ Nuvem ✓');
+    localStorage.setItem('sp8_fb_last_sync', new Date().toISOString());
+  } catch(e) {
+    fbStatusChip('erro', '☁ Erro ao salvar');
+    console.error('FB salvar error:', e);
   }
-  localStorage.setItem('sp8_gist_last_sync', new Date().toLocaleString('pt-BR'));
-  atualizarStatusGist('ok');
 }
 
-async function carregarDoGist(cfg, silencioso) {
-  const res = await fetch(`https://api.github.com/gists/${cfg.gistId}`, {
-    headers: {
-      'Authorization': `token ${cfg.token}`,
-      'Accept': 'application/vnd.github.v3+json',
+async function fbCarregarDados(silencioso) {
+  if(!FB) return;
+  try {
+    const doc = await FB.collection('sp8_dados').doc('principal').get();
+    if(!doc.exists) {
+      // Nuvem vazia — sobe dados locais
+      await fbSalvarDados();
+      if(!silencioso) alert('✅ Dados enviados para a nuvem!
+' + state.orcamentos.length + ' orçamento(s)');
+      return;
     }
-  });
-  if(!res.ok) {
-    const err = await res.json();
-    throw new Error(err.message || `HTTP ${res.status} — verifique o ID do Gist`);
-  }
-  const gist    = await res.json();
-  const arquivo = gist.files[GIST_FILENAME];
-  if(!arquivo) throw new Error(`Arquivo "${GIST_FILENAME}" não encontrado no Gist.`);
+    const dados = doc.data();
+    const tsNuvem = new Date(dados.atualizadoEm||0).getTime()||0;
+    const tsLocal = new Date(localStorage.getItem('sp8_fb_last_sync')||0).getTime()||0;
+    const totalLocal = state.orcamentos.length;
+    const totalNuvem = dados.orcamentos?.length||0;
 
-  const dadosNuvem  = JSON.parse(arquivo.content);
-  const totalLocal  = state.orcamentos.length;
-  const totalNuvem  = dadosNuvem.sp8_orcamentos?.length||0;
-  const matLocal    = state.materiais.length;
-  const matNuvem    = dadosNuvem.sp8_materiais?.length||0;
-
-  const tsNuvem = new Date(dadosNuvem.sp8_exportado_em||0).getTime()||0;
-  const tsLocal = new Date(localStorage.getItem('sp8_gist_last_sync')||0).getTime()||0;
-
-  // Computador novo / sem dados — sempre baixa da nuvem sem perguntar
-  const localVazio = totalLocal === 0 && (matLocal <= 63); // 63 = base inicial padrão
-  if(localVazio && totalNuvem > 0) {
-    await aplicarDadosNuvem(dadosNuvem, silencioso);
-    return;
-  }
-
-  // Nunca sincronizou neste computador — baixa da nuvem
-  if(tsLocal === 0 && tsNuvem > 0) {
-    await aplicarDadosNuvem(dadosNuvem, silencioso);
-    return;
-  }
-
-  // Nuvem é mais recente que o último sync local
-  if(tsNuvem > tsLocal) {
-    if(silencioso) {
-      await aplicarDadosNuvem(dadosNuvem, true);
-    } else {
-      const escolha = confirm(
-        `☁️ A nuvem tem dados mais recentes!\n\n` +
-        `Nuvem: ${totalNuvem} orçamento(s) · ${dadosNuvem.sp8_exportado_em?.slice(0,10)||'?'}\n` +
-        `Local: ${totalLocal} orçamento(s)\n\n` +
-        `OK = Baixar dados da nuvem\n` +
-        `Cancelar = Subir dados locais para a nuvem`
-      );
-      if(escolha) {
-        await aplicarDadosNuvem(dadosNuvem, false);
-      } else {
-        await salvarNoGist(cfg);
-        alert(`✅ Dados locais enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
-      }
+    // Nunca sincronizou OU local vazio → baixa sempre
+    if(tsLocal === 0 || totalLocal === 0) {
+      await fbAplicarDados(dados, silencioso);
+      return;
     }
-  } else if(totalLocal > totalNuvem) {
-    // Local tem mais dados — sobe para nuvem
-    await salvarNoGist(cfg);
-    if(!silencioso) alert(`✅ Dados enviados para a nuvem!\n${totalLocal} orçamento(s) sincronizado(s)`);
-  } else {
-    // Já sincronizado
-    atualizarStatusGist('ok');
-    if(!silencioso) {
-      const ultima = localStorage.getItem('sp8_gist_last_sync');
-      alert(`✅ Dados já sincronizados!\nÚltimo sync: ${ultima||'agora'}`);
+
+    // Nuvem mais recente → baixa
+    if(tsNuvem > tsLocal) {
+      await fbAplicarDados(dados, silencioso);
+      return;
     }
+
+    // Local mais recente → sobe
+    if(tsLocal > tsNuvem || totalLocal > totalNuvem) {
+      await fbSalvarDados();
+      if(!silencioso) alert('✅ Dados enviados para a nuvem!
+' + totalLocal + ' orçamento(s)');
+      return;
+    }
+
+    // Iguais
+    fbStatusChip('ok','☁ Nuvem ✓');
+    if(!silencioso) alert('✅ Dados já sincronizados!');
+
+  } catch(e) {
+    throw e;
   }
 }
 
-async function aplicarDadosNuvem(dadosNuvem, silencioso) {
-  state.materiais  = dadosNuvem.sp8_materiais  || state.materiais;
-  // Restaura fotos locais nos orçamentos que vieram da nuvem sem fotos
-  const orcsNuvem  = dadosNuvem.sp8_orcamentos || [];
+async function fbAplicarDados(dados, silencioso) {
+  state.materiais  = dados.materiais  || state.materiais;
+  const orcsNuvem  = dados.orcamentos || [];
   state.orcamentos = restaurarFotosLocais(orcsNuvem);
-  if(dadosNuvem.sp8_versao) localStorage.setItem(APP_VERSAO_KEY, dadosNuvem.sp8_versao);
+  if(dados.versao) localStorage.setItem(APP_VERSAO_KEY, dados.versao);
   salvarState();
   mostrarVersao();
   renderDashboard();
-  localStorage.setItem('sp8_gist_last_sync', dadosNuvem.sp8_exportado_em || new Date().toISOString());
-  atualizarStatusGist('ok');
+  localStorage.setItem('sp8_fb_last_sync', dados.atualizadoEm || new Date().toISOString());
+  fbStatusChip('ok','☁ Nuvem ✓');
   if(!silencioso) {
-    alert(`✅ Dados carregados da nuvem!\n${state.orcamentos.length} orçamento(s) · ${state.materiais.length} material(is)\n\n📷 Fotos: mantidas do armazenamento local.`);
+    alert('✅ Dados carregados da nuvem!
+' + state.orcamentos.length + ' orçamento(s) · ' + state.materiais.length + ' material(is)');
   }
 }
 
-// ── Extrai fotos dos orçamentos (para salvar local separadamente) ────────────
-function extrairFotos(orcamentos) {
-  const mapaFotos = {};
-  orcamentos.forEach(orc => {
-    (orc.fases||[]).forEach(f => {
-      (f.itens||[]).forEach(item => {
-        if((item.fotos||[]).length) {
-          const key = `${orc.id}__${f.id}__${item.matId||'m'}`;
-          mapaFotos[key] = item.fotos;
-        }
-      });
-    });
-  });
-  return mapaFotos;
-}
+async function fbForcarUpload() {
+  if(!FB) {
+    const cfg = fbCarregarConfig();
+    if(!cfg.apiKey) { alert('Configure o Firebase primeiro.'); return; }
+    fbIniciar(cfg);
+  }
+  if(!confirm('⬆️ Forçar upload?
 
-// ── Remove fotos dos orçamentos (para enviar ao Gist sem peso) ───────────────
-function orcamentosSemFotos(orcamentos) {
-  return JSON.parse(JSON.stringify(orcamentos)).map(orc => {
-    (orc.fases||[]).forEach(f => {
-      (f.itens||[]).forEach(item => { item.fotos = []; });
-    });
-    return orc;
-  });
-}
+Enviará os dados DESTE computador para a nuvem.
 
-// ── Restaura fotos salvas localmente nos orçamentos baixados da nuvem ─────────
-function restaurarFotosLocais(orcamentos) {
-  const mapaFotos = JSON.parse(localStorage.getItem('sp8_fotos_local')||'{}');
-  if(!Object.keys(mapaFotos).length) return orcamentos;
-  orcamentos.forEach(orc => {
-    (orc.fases||[]).forEach(f => {
-      (f.itens||[]).forEach(item => {
-        const key = `${orc.id}__${f.id}__${item.matId||'m'}`;
-        if(mapaFotos[key]?.length) item.fotos = mapaFotos[key];
-      });
-    });
-  });
-  return orcamentos;
-}
+Continuar?')) return;
+  fbStatusChip('sync','↻ Enviando...');
+  try {
+    // Zera timestamp para garantir que é considerado mais recente
+    localStorage.setItem('sp8_fb_last_sync', new Date().toISOString());
+    await fbSalvarDados();
+    fecharModal('modal-fb-config');
+    alert('✅ Dados enviados!
 
-// ── Salva fotos no localStorage local separadamente ───────────────────────────
-function salvarFotosLocal(orcamentos) {
-  const mapaFotos = extrairFotos(orcamentos);
-  localStorage.setItem('sp8_fotos_local', JSON.stringify(mapaFotos));
-}
-
-function montarPayloadBackup() {
-  // Payload COMPLETO (para exportar localmente — inclui fotos)
-  return {
-    sp8_versao:       obterVersao(),
-    sp8_exportado_em: new Date().toISOString(),
-    sp8_materiais:    state.materiais,
-    sp8_orcamentos:   state.orcamentos,
-  };
-}
-
-function montarPayloadNuvem() {
-  // Payload LEVE (para o Gist — sem fotos)
-  return {
-    sp8_versao:       obterVersao(),
-    sp8_exportado_em: new Date().toISOString(),
-    sp8_materiais:    state.materiais,
-    sp8_orcamentos:   orcamentosSemFotos(state.orcamentos),
-  };
-}
-
-function verificarSyncGistAoIniciar() {
-  const cfg = carregarConfigGist();
-  if(cfg.token && cfg.gistId) {
-    atualizarStatusGist('sync');
-    // Baixa automaticamente ao abrir — silencioso
-    carregarDoGist(cfg, true).catch(() => atualizarStatusGist('erro'));
+No outro computador clique em ☁ Nuvem para baixar.');
+  } catch(e) {
+    fbStatusChip('erro','☁ Erro');
+    alert('❌ Erro: ' + e.message);
   }
 }
 
+// Listener em tempo real — atualiza automaticamente quando outro usuário salva
+var _fbUnsubscribe = null;
+function fbIniciarListener() {
+  if(!FB || _fbUnsubscribe) return;
+  _fbUnsubscribe = FB.collection('sp8_dados').doc('principal')
+    .onSnapshot(function(doc) {
+      if(!doc.exists) return;
+      const dados     = doc.data();
+      const tsNuvem   = new Date(dados.atualizadoEm||0).getTime()||0;
+      const tsLocal   = new Date(localStorage.getItem('sp8_fb_last_sync')||0).getTime()||0;
+      // Só aplica se nuvem for mais recente (outra máquina salvou)
+      if(tsNuvem > tsLocal + 5000) { // 5s de tolerância
+        fbAplicarDados(dados, true);
+      }
+    }, function(e) {
+      console.error('FB listener error:', e);
+    });
+}
+
+function fbIniciarAoAbrir() {
+  const cfg = fbCarregarConfig();
+  if(!cfg.apiKey) return;
+  const ok = fbIniciar(cfg);
+  if(ok) {
+    fbCarregarDados(true)
+      .then(() => fbIniciarListener())
+      .catch(() => fbStatusChip('erro','☁ Erro ao conectar'));
+  }
+}
+
+// Salva na nuvem após cada salvarState (substituindo Gist)
+function fbAutoSalvar() {
+  const cfg = fbCarregarConfig();
+  if(FB && cfg.apiKey) fbSalvarDados().catch(()=>{});
+}
 // ==================== BACKUP — EXPORTAR / IMPORTAR ====================
 function exportarDados() {
   const versao = obterVersao();
@@ -4371,8 +4220,8 @@ document.addEventListener('DOMContentLoaded',()=>{
   renderDashboard();
   mostrarVersao();
   document.getElementById('f-parcelas')?.addEventListener('input', recalcularTudo);
-  // Inicializa status e auto-sync com GitHub ao abrir
-  verificarSyncGistAoIniciar();
+  // Inicializa Firebase e sincroniza ao abrir
+  fbIniciarAoAbrir();
 });
 
 </script>

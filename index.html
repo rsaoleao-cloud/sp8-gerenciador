@@ -2151,30 +2151,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 </div>
 
 
-<!-- Firebase SDK assíncrono -->
-<script>
-(function() {
-  function carregarSDK() {
-    var s1 = document.createElement('script');
-    s1.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app-compat.js';
-    s1.onload = function() {
-      var s2 = document.createElement('script');
-      s2.src = 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore-compat.js';
-      s2.onload = function() {
-        if(typeof fbIniciarAoAbrir === 'function') fbIniciarAoAbrir();
-      };
-      document.head.appendChild(s2);
-    };
-    document.head.appendChild(s1);
-  }
-  if(document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', carregarSDK);
-  } else {
-    setTimeout(carregarSDK, 100);
-  }
-})();
-</script>
-
 <script>
 // ==================== FIREBASE ====================
 var FB_DB = null;
@@ -2211,19 +2187,27 @@ function fbMsg(tipo, txt) {
 function fbIniciar(cfg) {
   try {
     if(typeof firebase === 'undefined') { fbStatusChip('erro', 'SDK nao carregado'); return false; }
-    if(!firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey:     cfg.apiKey,
-        authDomain: cfg.projectId + '.firebaseapp.com',
-        projectId:  cfg.projectId
-      });
+    // Limpa apps anteriores para evitar conflito
+    var apps = firebase.apps;
+    if(apps.length) {
+      FB_DB = firebase.firestore();
+      fbStatusChip('ok', 'Nuvem');
+      return true;
     }
+    firebase.initializeApp({
+      apiKey:        cfg.apiKey,
+      authDomain:    cfg.projectId + '.firebaseapp.com',
+      projectId:     cfg.projectId,
+      storageBucket: cfg.projectId + '.appspot.com'
+    });
     FB_DB = firebase.firestore();
+    FB_DB.settings({ experimentalForceLongPolling: true, merge: true });
     FB_DB.enablePersistence({ synchronizeTabs: true }).catch(function() {});
     fbStatusChip('ok', 'Nuvem');
     return true;
   } catch(e) {
     fbStatusChip('erro', 'Erro: ' + e.message);
+    console.error('fbIniciar:', e);
     return false;
   }
 }
@@ -2425,199 +2409,7 @@ function fbIniciarAoAbrir() {
 })();
 </script>
 
-<script>
-// ==================== FIREBASE ====================
-var FB_DB = null;
-var FB_CFG_KEY = 'sp8_fb_config';
-var FB_SYNC_KEY = 'sp8_fb_last_sync';
-
-function fbCarregarConfig() {
-  try { return JSON.parse(localStorage.getItem(FB_CFG_KEY) || '{}'); } catch(e) { return {}; }
-}
-
-function fbStatusChip(status, msg) {
-  var dot   = document.getElementById('fb-dot');
-  var label = document.getElementById('fb-label');
-  var btn   = document.getElementById('btn-fb-sync');
-  var cores = { ok:'#16a34a', erro:'#dc2626', sync:'#f59e0b', off:'#94a3b8' };
-  if(dot)   dot.style.background = cores[status] || cores.off;
-  if(label) label.textContent = msg || (status==='ok' ? 'Nuvem' : status==='erro' ? 'Erro' : 'Nuvem');
-  if(btn)   btn.disabled = (status === 'sync');
-}
-
-function fbMsg(tipo, txt) {
-  var el = document.getElementById('fb-config-msg');
-  if(!el) return;
-  el.style.display = 'block';
-  var map = {
-    ok:   'background:#dcfce7;color:#15803d;border:1px solid #86efac',
-    erro: 'background:#fee2e2;color:#b91c1c;border:1px solid #fca5a5',
-    info: 'background:#eff6ff;color:#1e6fd9;border:1px solid #93c5fd'
-  };
-  el.style.cssText += ';border-radius:8px;padding:10px 14px;font-size:13px;' + (map[tipo] || map.info);
-  el.textContent = txt;
-}
-
-function fbIniciar(cfg) {
-  try {
-    if(typeof firebase === 'undefined') { fbStatusChip('erro', 'SDK nao carregado'); return false; }
-    if(!firebase.apps.length) {
-      firebase.initializeApp({
-        apiKey:     cfg.apiKey,
-        authDomain: cfg.projectId + '.firebaseapp.com',
-        projectId:  cfg.projectId
-      });
-    }
-    FB_DB = firebase.firestore();
-    FB_DB.enablePersistence({ synchronizeTabs: true }).catch(function() {});
-    fbStatusChip('ok', 'Nuvem');
-    return true;
-  } catch(e) {
-    fbStatusChip('erro', 'Erro: ' + e.message);
-    return false;
-  }
-}
-
-function fbSalvarConfig() {
-  var apiKey    = document.getElementById('fb-apikey').value.trim();
-  var projectId = document.getElementById('fb-projectid').value.trim();
-  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha API Key e Project ID.'); return; }
-  localStorage.setItem(FB_CFG_KEY, JSON.stringify({ apiKey: apiKey, projectId: projectId }));
-  fbMsg('ok', 'Configuracao salva! Clique em Nuvem para sincronizar.');
-  fbIniciar({ apiKey: apiKey, projectId: projectId });
-}
-
-function abrirConfigFB() {
-  var cfg = fbCarregarConfig();
-  var ak  = document.getElementById('fb-apikey');
-  var pid = document.getElementById('fb-projectid');
-  var msg = document.getElementById('fb-config-msg');
-  if(ak)  ak.value  = cfg.apiKey    || '';
-  if(pid) pid.value = cfg.projectId || '';
-  if(msg) msg.style.display = 'none';
-  if(cfg.apiKey) { var g = document.getElementById('guia-firebase'); if(g) g.removeAttribute('open'); }
-  abrirModal('modal-fb-config');
-}
-
-function fbTestarConexao() {
-  var apiKey    = document.getElementById('fb-apikey').value.trim();
-  var projectId = document.getElementById('fb-projectid').value.trim();
-  if(!apiKey || !projectId) { fbMsg('erro', 'Preencha os campos.'); return; }
-  fbMsg('info', 'Testando...');
-  if(!fbIniciar({ apiKey: apiKey, projectId: projectId })) { fbMsg('erro', 'Falha ao iniciar.'); return; }
-  FB_DB.collection('sp8_config').limit(1).get()
-    .then(function() { fbMsg('ok', 'Firebase OK! Conexao bem-sucedida.'); })
-    .catch(function(e) { fbMsg('erro', 'Erro: ' + e.message); });
-}
-
-function fbSincronizar() {
-  var cfg = fbCarregarConfig();
-  if(!cfg.apiKey) { abrirConfigFB(); return; }
-  if(!FB_DB && !fbIniciar(cfg)) return;
-  fbStatusChip('sync', 'Sincronizando...');
-  fbCarregarDados(false);
-}
-
-function fbSalvarDados() {
-  if(!FB_DB) return;
-  var payload = {
-    materiais:    state.materiais,
-    orcamentos:   state.orcamentos,
-    versao:       obterVersao(),
-    atualizadoEm: new Date().toISOString()
-  };
-  FB_DB.collection('sp8_dados').doc('principal').set(payload)
-    .then(function() {
-      localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
-      fbStatusChip('ok', 'Nuvem');
-    })
-    .catch(function(e) { fbStatusChip('erro', 'Erro ao salvar'); });
-}
-
-function fbCarregarDados(silencioso) {
-  if(!FB_DB) return;
-  FB_DB.collection('sp8_dados').doc('principal').get()
-    .then(function(doc) {
-      if(!doc.exists) {
-        fbSalvarDados();
-        if(!silencioso) alert('Dados enviados para a nuvem! ' + state.orcamentos.length + ' orcamento(s)');
-        return;
-      }
-      var dados     = doc.data();
-      var tsNuvem   = new Date(dados.atualizadoEm || 0).getTime() || 0;
-      var tsLocal   = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
-      var totalLocal = state.orcamentos.length;
-      var totalNuvem = (dados.orcamentos || []).length;
-
-      if(tsLocal === 0 || totalLocal === 0) {
-        fbAplicarDados(dados, silencioso);
-      } else if(tsNuvem > tsLocal) {
-        fbAplicarDados(dados, silencioso);
-      } else if(tsLocal > tsNuvem || totalLocal > totalNuvem) {
-        fbSalvarDados();
-        if(!silencioso) alert('Dados enviados para a nuvem! ' + totalLocal + ' orcamento(s)');
-      } else {
-        fbStatusChip('ok', 'Nuvem');
-        if(!silencioso) alert('Dados ja sincronizados!');
-      }
-    })
-    .catch(function(e) {
-      fbStatusChip('erro', 'Erro sync');
-      if(!silencioso) alert('Erro na sincronizacao: ' + e.message);
-    });
-}
-
-function fbAplicarDados(dados, silencioso) {
-  state.materiais  = dados.materiais  || state.materiais;
-  state.orcamentos = dados.orcamentos || [];
-  if(dados.versao) localStorage.setItem(APP_VERSAO_KEY, dados.versao);
-  salvarState();
-  mostrarVersao();
-  renderDashboard();
-  localStorage.setItem(FB_SYNC_KEY, dados.atualizadoEm || new Date().toISOString());
-  fbStatusChip('ok', 'Nuvem');
-  if(!silencioso) alert('Dados carregados da nuvem! ' + state.orcamentos.length + ' orcamento(s)');
-}
-
-function fbForcarUpload() {
-  var cfg = fbCarregarConfig();
-  if(!cfg.apiKey) { alert('Configure o Firebase primeiro.'); return; }
-  if(!FB_DB) fbIniciar(cfg);
-  if(!confirm('Enviar dados DESTE computador para a nuvem?')) return;
-  fbStatusChip('sync', 'Enviando...');
-  localStorage.setItem(FB_SYNC_KEY, new Date().toISOString());
-  fbSalvarDados();
-  fecharModal('modal-fb-config');
-  alert('Dados enviados! No outro computador clique em Nuvem para baixar.');
-}
-
-var _fbListener = null;
-function fbIniciarListener() {
-  if(!FB_DB || _fbListener) return;
-  _fbListener = FB_DB.collection('sp8_dados').doc('principal')
-    .onSnapshot(function(doc) {
-      if(!doc.exists) return;
-      var dados   = doc.data();
-      var tsNuvem = new Date(dados.atualizadoEm || 0).getTime() || 0;
-      var tsLocal = new Date(localStorage.getItem(FB_SYNC_KEY) || 0).getTime() || 0;
-      if(tsNuvem > tsLocal + 5000) fbAplicarDados(dados, true);
-    }, function(e) { console.error('FB listener:', e); });
-}
-
-function fbAutoSalvar() {
-  var cfg = fbCarregarConfig();
-  if(FB_DB && cfg.apiKey) fbSalvarDados();
-}
-
-function fbIniciarAoAbrir() {
-  var cfg = fbCarregarConfig();
-  if(!cfg.apiKey) return;
-  if(fbIniciar(cfg)) {
-    fbCarregarDados(true);
-    setTimeout(fbIniciarListener, 3000);
-  }
-}
-</script>
+<script
 
 </body>
 </html>
